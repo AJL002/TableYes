@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Google Map</title>
+		<meta name="viewport" content="initial-scale=1.0">
+		<meta charset="utf-8">
+		<style>		  
+		  #map { 
+			height: 300px;	
+			width: 600px;			
+		  }		  
+		</style>		
+	</head>	
+	<body>
+		<div id="latclicked"></div>
+		<div id="longclicked"></div>
+		
+		<div id="latmoved"></div>
+		<div id="longmoved"></div>
+		
+		<div style="padding:10px">
+			<div id="map"></div>
+		</div>
+		
+		<script src="script.js"></script>
+		<script src="https://maps.googleapis.com/maps/api/js?callback=initMap"
+		async defer></script>
+	</body>	
+</html>
