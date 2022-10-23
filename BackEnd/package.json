@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "amazon-cognito-identity-js": "^5.2.11",
+    "aws-sdk": "^2.182.0",
+    "bluebird": "^3.7.2",
+    "uuid": "^9.0.0"
+  }
+}

@@ -1,0 +1,268 @@
+#https://www.serverless.com/blog/node-rest-api-with-serverless-lambda-and-dynamodb
+#https://github.com/mavi888/sls-cognito-backend/blob/master/serverless.yml
+service: candidate-service
+
+frameworkVersion: '>=1.1.0 <3.23.0'
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: us-east-1
+  
+  environment:
+    DOMAIN_SUFFIX: burgos-program
+    CANDIDATE_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+    CANDIDATE_EMAIL_TABLE: "candidate-email-${opt:stage, self:provider.stage}"
+    user_pool_id: { Ref: UserPool }
+    client_id: { Ref: UserClient }
+  
+#  httpApi:
+#    authorizers:
+ #    serviceAuthorizer:
+ #       identitySource: $request.header.Authorization
+  #      issuerUrl: 
+   #       Fn::Join:
+    #      - ''
+     #     - - 'https://cognito-idp.'
+      #      - '${opt:region, self:provider.region}'
+       #     - '.amazonaws.com/'
+        #    - Ref: serviceUsertPool
+        #audience:
+         # - Ref: serviceUserPoolClien 
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        # - cognito-idp:AdminInitiateAuth
+        # - cognito-idp:AdminCreateUser
+        # - cognito-idp:AdminSetUserPassword
+      Resource: "*"
+
+resources:
+  Resources:
+    CandidatesDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: "id"
+            AttributeType: "S"   
+        KeySchema:
+          -
+            AttributeName: "id"
+            KeyType: "HASH"
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamViewType: "NEW_AND_OLD_IMAGES"
+        TableName: ${self:provider.environment.CANDIDATE_TABLE}
+    # Cognito - User pool
+    CognitoUserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: cognito_sls_backend_user_pool
+    # Cognito - Client
+    CognitoUserPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: cognito_sls_backend_client
+        UserPoolId:
+          Ref: CognitoUserPool
+    # Cognito - Identity
+    CognitoIdentityPool:
+      Type: AWS::Cognito::IdentityPool
+      Properties:
+        IdentityPoolName: cognito_sls_backend_identity_pool
+        AllowUnauthenticatedIdentities: false
+        CognitoIdentityProviders:
+          - ClientId:
+              Ref: CognitoUserPoolClient
+            ProviderName:
+              Fn::GetAtt: [CognitoUserPool, ProviderName]
+    
+    UserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: serverless-auth-pool
+        Schema:
+          - Name: email
+            Required: true
+            Mutable: true
+        Policies:
+          PasswordPolicy:
+            MinimumLength: 6
+        AutoVerifiedAttributes: ["email"]
+
+    UserClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: user-pool-ui
+        GenerateSecret: false
+        UserPoolId: { Ref: UserPool }
+        AccessTokenValidity: 5
+        IdTokenValidity: 5
+        ExplicitAuthFlows:
+          - "ADMIN_NO_SRP_AUTH" 
+    
+    # Cognito roles
+    CognitoIdentityPoolRoles:
+      Type: AWS::Cognito::IdentityPoolRoleAttachment
+      Properties:
+        IdentityPoolId:
+          Ref: CognitoIdentityPool
+        Roles:
+          authenticated:
+            Fn::GetAtt: [CognitoAuthRole, Arn]
+          unauthenticated:
+            Fn::GetAtt: [CognitoUnauthRole, Arn]
+    CognitoAuthRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: appAuthRole
+        Path: /
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Principal:
+                Federated: "cognito-identity.amazonaws.com"
+              Action:
+                - "sts:AssumeRoleWithWebIdentity"
+              Condition:
+                StringEquals:
+                  "cognito-identity.amazonaws.com:aud":
+                    Ref: CognitoIdentityPool
+                "ForAnyValue:StringLike":
+                  "cognito-identity.amazonaws.com:amr": authenticated
+        Policies:
+          - PolicyName: "CognitoAuthorizedPolicy"
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: "Allow"
+                  Action:
+                    - "mobileanalytics:PutEvents"
+                    - "cognito-sync:*"
+                    - "cognito-identity:*"
+                  Resource: "*"
+                - Effect: "Allow"
+                  Action:
+                    - "execute-api:Invoke"
+                  Resource: "*"
+    CognitoUnauthRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: appUnauthRole
+        Path: /
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Principal:
+                Federated: "cognito-identity.amazonaws.com"
+              Action:
+                - "sts:AssumeRoleWithWebIdentity"
+              Condition:
+                StringEquals:
+                  "cognito-identity.amazonaws.com:aud":
+                    Ref: CognitoIdentityPool
+                "ForAnyValue:StringLike":
+                  "cognito-identity.amazonaws.com:amr": unauthenticated
+        Policies:
+          - PolicyName: "CognitoUnauthorizedPolicy"
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: "Allow"
+                  Action:
+                    - "mobileanalytics:PutEvents"
+                    - "cognito-sync:*"
+                    - "cognito-identity:*"
+                  Resource: "*"
+
+
+functions:
+  candidateSubmission:
+    handler: api/candidate.submit
+    memorySize: 128
+    description: Submit candidate information and starts interview process.
+    events:
+      - http:
+          path: candidates
+          method: post
+    
+  listCandidates:
+    handler: api/candidate.list
+    memorySize: 128
+    description: List all candidates
+    events:
+      - http: 
+          path: candidates
+          method: get
+          cors: true
+          authorizer:
+           name: PrivateAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - UserPool
+                - Arn
+            claims:
+              - email
+#          authorizer: serviceAuthorizer
+#          authorizer:
+#            name: PrivateAuthorizer
+#            type: COGNITO_USER_POOLS
+#            arn:
+#              Fn::GetAtt:
+#               - UserPool
+#                - Arn
+#            claims:
+#              - email   
+
+  candidateDetails:
+    handler: api/candidate.get
+    description: List specific candidate detail
+    events:
+      - http:
+          path: candidates/{id}
+          method: get 
+
+  loginUser:
+     handler: api/login.handler
+     events:
+       - http:
+           path: api/login
+           method: post
+           cors: true
+
+  signupUser:
+     handler: api/signup.handler
+     events:
+       - http:
+           path: api/signup
+           method: post
+           cors: true
+  privateAPI:
+    handler: api/private.handler
+    events:
+      - http:
+          path: api/private
+          method: post
+          cors: true
+          authorizer:
+            name: PrivateAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - UserPool
+                - Arn
+            claims:
+              - email
