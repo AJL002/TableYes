@@ -14,20 +14,20 @@ module.exports.submit = (event, context, callback) => {
   const requestBody = JSON.parse(event.body);
   const fullname = requestBody.fullname;
   const email = requestBody.email;
-  const experience = requestBody.experience;
+  const coordinates = requestBody.coordinates;
 
-  if (typeof fullname !== 'string' || typeof email !== 'string' || typeof experience !== 'number') {
+  if (typeof fullname !== 'string' || typeof email !== 'string' || typeof coordinates !== 'number') {
     console.error('Validation Failed');
     callback(new Error('Couldn\'t submit candidate because of validation errors.'));
     return;
   }
 
-  submitCandidateP(candidateInfo(fullname, email, experience))
+  submitRestaurant(restaurantInfo(fullname, email, coordinates))
     .then(res => {
       callback(null, {
         statusCode: 200,
         body: JSON.stringify({
-          message: `Sucessfully submitted candidate with email ${email}`,
+          message: `Sucessfully submitted restaurant with email ${email}`,
           candidateId: res.id
         })
       });
@@ -37,30 +37,30 @@ module.exports.submit = (event, context, callback) => {
       callback(null, {
         statusCode: 500,
         body: JSON.stringify({
-          message: `Unable to submit candidate with email ${email}`
+          message: `Unable to submit restaurant with email ${email}`
         })
       })
     });
 };
 
 
-const submitCandidateP = candidate => {
-  console.log('Submitting candidate');
+const submitRestaurant = restaurant => {
+  console.log('Submitting restaurant');
   const candidateInfo = {
     TableName: process.env.CANDIDATE_TABLE,
-    Item: candidate,
+    Item: restaurant,
   };
   return dynamoDb.put(candidateInfo).promise()
-    .then(res => candidate);
+    .then(res => restaurant);
 };
 
-const candidateInfo = (fullname, email, experience) => {
+const restaurantInfo = (fullname, email, coordinates) => {
   const timestamp = new Date().getTime();
   return {
     id: uuid.v1(),
     fullname: fullname,
     email: email,
-    experience: experience,
+    coordinates: coordinates,
     submittedAt: timestamp,
     updatedAt: timestamp,
   };
@@ -69,7 +69,7 @@ const candidateInfo = (fullname, email, experience) => {
 module.exports.list = (event, context, callback) => {
   var params = {
       TableName: process.env.CANDIDATE_TABLE,
-      ProjectionExpression: "id, fullname, email"
+      ProjectionExpression: "id, fullname, email, coordinates"
   };
 
   console.log("Scanning Candidate table.");
@@ -113,7 +113,7 @@ module.exports.get = (event, context, callback) => {
     })
     .catch(error => {
       console.error(error);
-      callback(new Error('Couldn\'t fetch candidate.'));
+      callback(new Error('Couldn\'t fetch restaurant.'));
       return;
     });
 };

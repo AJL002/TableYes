@@ -16,20 +16,6 @@ provider:
     CANDIDATE_EMAIL_TABLE: "candidate-email-${opt:stage, self:provider.stage}"
     user_pool_id: { Ref: UserPool }
     client_id: { Ref: UserClient }
-  
-#  httpApi:
-#    authorizers:
- #    serviceAuthorizer:
- #       identitySource: $request.header.Authorization
-  #      issuerUrl: 
-   #       Fn::Join:
-    #      - ''
-     #     - - 'https://cognito-idp.'
-      #      - '${opt:region, self:provider.region}'
-       #     - '.amazonaws.com/'
-        #    - Ref: serviceUsertPool
-        #audience:
-         # - Ref: serviceUserPoolClien 
 
   iamRoleStatements:
     - Effect: Allow
@@ -38,9 +24,7 @@ provider:
         - dynamodb:Scan
         - dynamodb:GetItem
         - dynamodb:PutItem
-        # - cognito-idp:AdminInitiateAuth
-        # - cognito-idp:AdminCreateUser
-        # - cognito-idp:AdminSetUserPassword
+        
       Resource: "*"
 
 resources:
