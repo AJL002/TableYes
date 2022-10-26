@@ -4,7 +4,8 @@
 
 const uuid = require('uuid');
 const AWS = require('aws-sdk'); 
-const { sendResponse } = require('../functions/index')
+const { sendResponse, getUserID } = require('../functions/index');
+
 
 AWS.config.setPromisesDependency(require('bluebird'));
 
@@ -14,7 +15,8 @@ module.exports.submit = (event, context, callback) => {
   const requestBody = JSON.parse(event.body);
   const fullname = requestBody.fullname;
   const email = requestBody.email;
-  const coordinates = requestBody.coordinates;
+  const coordinates = requestBody.coordinates; 
+  const userID = getUserID;
 
   if (typeof fullname !== 'string' || typeof email !== 'string' || typeof coordinates !== 'number') {
     console.error('Validation Failed');
@@ -22,13 +24,14 @@ module.exports.submit = (event, context, callback) => {
     return;
   }
 
-  submitRestaurant(restaurantInfo(fullname, email, coordinates))
+  submitRestaurant(restaurantInfo(fullname, email, coordinates, userID))
     .then(res => {
       callback(null, {
         statusCode: 200,
         body: JSON.stringify({
           message: `Sucessfully submitted restaurant with email ${email}`,
-          candidateId: res.id
+          restaurantId: res.id,
+          userID: res.userID
         })
       });
     })
@@ -46,18 +49,19 @@ module.exports.submit = (event, context, callback) => {
 
 const submitRestaurant = restaurant => {
   console.log('Submitting restaurant');
-  const candidateInfo = {
+  const restaurantInfo = {
     TableName: process.env.CANDIDATE_TABLE,
     Item: restaurant,
   };
-  return dynamoDb.put(candidateInfo).promise()
+  return dynamoDb.put(restaurantInfo).promise()
     .then(res => restaurant);
 };
 
-const restaurantInfo = (fullname, email, coordinates) => {
+const restaurantInfo = (fullname, email, coordinates, userID) => {
   const timestamp = new Date().getTime();
   return {
     id: uuid.v1(),
+    userID: userID,
     fullname: fullname,
     email: email,
     coordinates: coordinates,
@@ -117,3 +121,33 @@ module.exports.get = (event, context, callback) => {
       return;
     });
 };
+
+module.exports.delete = async (event, context) => {
+  let body;
+  let statusCode = 200;
+  const headers = {
+    "Content-Type": "application/json"
+  };
+  try{
+    await dynamoDb.delete({
+      TableName: process.env.CANDIDATE_TABLE,
+      Key: {
+        id: event.pathParameters.id
+      }
+    })
+    .promise();
+  body = `Deleted item ${event.pathParameters.id}`;
+  }
+  catch (err) {
+    statusCode = 400;
+    body = err.message;
+  } finally {
+    body = JSON.stringify(body);
+  }
+  return {
+    statusCode,
+    body,
+    headers
+  };
+  }
+  

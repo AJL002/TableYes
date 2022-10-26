@@ -24,6 +24,8 @@ provider:
         - dynamodb:Scan
         - dynamodb:GetItem
         - dynamodb:PutItem
+        - dynamodb:DeleteItem
+        - cognito-idp:* 
         
       Resource: "*"
 
@@ -181,6 +183,16 @@ functions:
       - http:
           path: candidates
           method: post
+          authorizer:
+            name: PrivateAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - UserPool
+                - Arn
+            claims:
+              - email
+
     
   listCandidates:
     handler: api/candidate.list
@@ -192,7 +204,7 @@ functions:
           method: get
           cors: true
           authorizer:
-           name: PrivateAuthorizer
+            name: PrivateAuthorizer
             type: COGNITO_USER_POOLS
             arn:
               Fn::GetAtt:
@@ -200,24 +212,22 @@ functions:
                 - Arn
             claims:
               - email
-#          authorizer: serviceAuthorizer
-#          authorizer:
-#            name: PrivateAuthorizer
-#            type: COGNITO_USER_POOLS
-#            arn:
-#              Fn::GetAtt:
-#               - UserPool
-#                - Arn
-#            claims:
-#              - email   
-
+  
   candidateDetails:
     handler: api/candidate.get
     description: List specific candidate detail
     events:
       - http:
           path: candidates/{id}
-          method: get 
+          method: get
+
+  deleteCandidate:
+    handler: api/candidate.delete
+    description: delete specific candidate 
+    events:
+      - http:
+          path: candidates/{id}
+          method: delete 
 
   loginUser:
      handler: api/login.handler
@@ -250,3 +260,4 @@ functions:
                 - Arn
             claims:
               - email
+

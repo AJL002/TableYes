@@ -4,7 +4,7 @@ const { sendResponse, validateInput } = require("../functions");
 const cognito = new AWS.CognitoIdentityServiceProvider();
 
 exports.handler = async(event, context, callback) => {
-  //var cognito = require('amazon-cognito-identity-js');
+  
   const {
       email,
       password
