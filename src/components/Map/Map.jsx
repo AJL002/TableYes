@@ -6,12 +6,10 @@ import Rating from '@material-ui/lab/Rating';
 import axios from 'axios';
 
 import useStyles from './styles';
-import mapStyles from './mapStyles';
 import Marker from './Marker.tsx';
-import { useState } from 'react';
 
 
-const Map = ({setCoordinates, setBounds, coordinates, places, setChildClicked}) => {
+const Map = () => {
     
     // submitHandler = e => {
     //     e.preventDefault()
@@ -27,23 +25,29 @@ const Map = ({setCoordinates, setBounds, coordinates, places, setChildClicked}) 
     // }
 
     const classes = useStyles();
-    const isDesktop = useMediaQuery('(min-width:600px)');
+    const isMobile = useMediaQuery('(min-width:600px)');
+
+    const coordinates = {lat: 29.03455, lng: -81.30300};
+
 
     return(
         <div className={classes.mapContainer}>
             <GoogleMapReact
+<<<<<<< HEAD
                 bootstrapURLKeys={{ key: 'AIzaSyCtU3aQTO7ODWILPEsbso8SFv0Flzy7ABw' }}
+=======
+                bootstrapURLKeys={{ key: 'AIzaSyCzoHfjtNVA9-iou0ZZCsUSqkmU_5zLRDE' }}
+>>>>>>> parent of aa07b9f (TableYes Map 99% There)
                 defaultCenter={coordinates}
                 center={coordinates}
                 defaultZoom={14}
                 margin={[50, 50, 50, 50]}
-                options={{ disableDefaultUI: true, zoomControl: true, styles: mapStyles }}
-                onChange={(e) =>{
-                    setCoordinates({lat: e.center.lat, lng: e.center.lng});
-                    setBounds({ne: e.marginBounds.ne, sw: e.marginBounds.sw})
-                }}
-                onChildClick={(child) => setChildClicked(child)}
+                options={''}
+                onChange={''}
+                onChildClick={''}
+                
             >
+<<<<<<< HEAD
                 {places?.map((place, i) => (
                     <div   
                         className={classes.markerContainer}
@@ -72,6 +76,14 @@ const Map = ({setCoordinates, setBounds, coordinates, places, setChildClicked}) 
                 ))
                 }
 
+=======
+            <Marker
+                lat={29.0392}
+                lng={-81.304}
+                name="Pointer"
+                color="red"
+            />
+>>>>>>> parent of aa07b9f (TableYes Map 99% There)
             </GoogleMapReact>
         </div>
         
