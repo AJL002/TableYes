@@ -3,6 +3,7 @@ import GoogleMapReact from 'google-map-react';
 import { Paper, Typography, useMediaQuery } from '@material-ui/core';
 import LocationOnOutlinedIcon from '@material-ui/icons/LocationOnOutlined';
 import Rating from '@material-ui/lab/Rating';
+import axios from 'axios';
 
 import useStyles from './styles';
 import mapStyles from './mapStyles';
@@ -12,13 +13,26 @@ import { useState } from 'react';
 
 const Map = ({setCoordinates, setBounds, coordinates, places, setChildClicked}) => {
     
+    // submitHandler = e => {
+    //     e.preventDefault()
+    //     console.log(this.state) //change state
+    //     axios
+    //         .post('link', this.state) //change state
+    //         .then(response => {
+    //             console.log(response)
+    //         })
+    //         .catch(error => {
+    //             console.log(error)
+    //         })
+    // }
+
     const classes = useStyles();
     const isDesktop = useMediaQuery('(min-width:600px)');
 
     return(
         <div className={classes.mapContainer}>
             <GoogleMapReact
-                bootstrapURLKeys={{ key: 'KEY' }}
+                bootstrapURLKeys={{ key: 'AIzaSyCtU3aQTO7ODWILPEsbso8SFv0Flzy7ABw' }}
                 defaultCenter={coordinates}
                 center={coordinates}
                 defaultZoom={14}
@@ -44,6 +58,7 @@ const Map = ({setCoordinates, setBounds, coordinates, places, setChildClicked}) 
                                 <Paper elevation={3} className={classes.paper}>
                                     <Typography className={classes.typography} variant="subtitle2" gutterBottom>
                                         {place.name}
+                                        
                                     </Typography>
                                     <img 
                                         className={classes.pointer}
@@ -55,11 +70,11 @@ const Map = ({setCoordinates, setBounds, coordinates, places, setChildClicked}) 
                         }
                     </div>
                 ))
-
                 }
 
             </GoogleMapReact>
         </div>
+        
     );
 }
 
