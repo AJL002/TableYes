@@ -3,51 +3,33 @@ import GoogleMapReact from 'google-map-react';
 import { Paper, Typography, useMediaQuery } from '@material-ui/core';
 import LocationOnOutlinedIcon from '@material-ui/icons/LocationOnOutlined';
 import Rating from '@material-ui/lab/Rating';
-import axios from 'axios';
 
 import useStyles from './styles';
+import mapStyles from './mapStyles';
 import Marker from './Marker.tsx';
+import { useState } from 'react';
 
 
-const Map = () => {
+const Map = ({setCoordinates, setBounds, coordinates, places, setChildClicked}) => {
     
-    // submitHandler = e => {
-    //     e.preventDefault()
-    //     console.log(this.state) //change state
-    //     axios
-    //         .post('link', this.state) //change state
-    //         .then(response => {
-    //             console.log(response)
-    //         })
-    //         .catch(error => {
-    //             console.log(error)
-    //         })
-    // }
-
     const classes = useStyles();
-    const isMobile = useMediaQuery('(min-width:600px)');
-
-    const coordinates = {lat: 29.03455, lng: -81.30300};
-
+    const isDesktop = useMediaQuery('(min-width:600px)');
 
     return(
         <div className={classes.mapContainer}>
             <GoogleMapReact
-<<<<<<< HEAD
-                bootstrapURLKeys={{ key: 'AIzaSyCtU3aQTO7ODWILPEsbso8SFv0Flzy7ABw' }}
-=======
-                bootstrapURLKeys={{ key: 'AIzaSyCzoHfjtNVA9-iou0ZZCsUSqkmU_5zLRDE' }}
->>>>>>> parent of aa07b9f (TableYes Map 99% There)
+                bootstrapURLKeys={{ key: 'KEY' }}
                 defaultCenter={coordinates}
                 center={coordinates}
                 defaultZoom={14}
                 margin={[50, 50, 50, 50]}
-                options={''}
-                onChange={''}
-                onChildClick={''}
-                
+                options={{ disableDefaultUI: true, zoomControl: true, styles: mapStyles }}
+                onChange={(e) =>{
+                    setCoordinates({lat: e.center.lat, lng: e.center.lng});
+                    setBounds({ne: e.marginBounds.ne, sw: e.marginBounds.sw})
+                }}
+                onChildClick={(child) => setChildClicked(child)}
             >
-<<<<<<< HEAD
                 {places?.map((place, i) => (
                     <div   
                         className={classes.markerContainer}
@@ -62,7 +44,6 @@ const Map = () => {
                                 <Paper elevation={3} className={classes.paper}>
                                     <Typography className={classes.typography} variant="subtitle2" gutterBottom>
                                         {place.name}
-                                        
                                     </Typography>
                                     <img 
                                         className={classes.pointer}
@@ -74,19 +55,11 @@ const Map = () => {
                         }
                     </div>
                 ))
+
                 }
 
-=======
-            <Marker
-                lat={29.0392}
-                lng={-81.304}
-                name="Pointer"
-                color="red"
-            />
->>>>>>> parent of aa07b9f (TableYes Map 99% There)
             </GoogleMapReact>
         </div>
-        
     );
 }
 
