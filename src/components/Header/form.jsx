@@ -17,12 +17,12 @@ export const ReserveForm = () => {
                 ariadescribedby='dialog-description'
             >
                     <DialogTitle id='dialog-title'>Reservation Details</DialogTitle>
-                        <TextField id="outlined-required" type="required" label="First Name"/> 
-                        <TextField id="outlined-required" label="Last Name"/> 
+                        <TextField id="outlined-required" type="required" label="Full Name"/> 
                         <TextField id="outlined-number" type="number" label="Party Size"/> 
+                        <h1>Comments: </h1>
                         <TextField id="outlined-required" label="Comment"/> 
                         <DialogContent>
-                            <DialogContentText id='dialog-description'>Are you sure you want to submit?</DialogContentText>
+                            <DialogContentText id='dialog-description'>Please arrive at least 10 minutes before your set reservation time.</DialogContentText>
                         </DialogContent>
                     <DialogActions>
                         <Button onClick={() => setOpen(false)}>Cancel</Button>

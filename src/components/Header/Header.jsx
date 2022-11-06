@@ -1,9 +1,22 @@
 import React, {useState} from 'react';
 import { Autocomplete } from '@react-google-maps/api';
-import { AppBar, Toolbar, Typography, InputBase, Box } from '@material-ui/core';
+import { AppBar, Toolbar, Typography, InputBase, Box, Button } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import useStyles from './styles';
 import { ReserveForm } from '././form.jsx'
+import axios from 'axios';
+
+const handleSubmit = (e) => {
+    axios.post("https://rrz0qonpwi.execute-api.us-east-1.amazonaws.com/dev/restaurants", 
+    {
+        fullname: "John Johnson", // string
+        email: "jjohnson@mail.com", // string
+        lat: 16.00253, // float
+        lng: 7.000058, // float
+    })
+    .then((response) => console.log(response))
+    .catch((err) => console.log(err));
+}
 
 const Header = ({ setCoordinates }) => {
     const classes = useStyles();
@@ -38,6 +51,7 @@ const Header = ({ setCoordinates }) => {
                     </Autocomplete>
                 </Box>
                 <ReserveForm/>
+                <Button onClick={handleSubmit}>Axios</Button>
             </Toolbar>
         </AppBar>
     );
