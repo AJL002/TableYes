@@ -3,7 +3,6 @@ import { Box, Typography, Button, Card, CardMedia, CardContent, CardActions, Chi
 import LocationOnIcon from '@material-ui/icons/LocationOn';
 import PhoneIcon from '@material-ui/icons/Phone';
 import Rating from '@material-ui/lab/Rating';
-import { ReserveForm } from '././form.jsx'
 
 import useStyles from './styles.js';
 
@@ -60,9 +59,9 @@ const PlaceDetails = ({ place, selected, refProp }) => {
         <Button size="small" color="primary" onClick={() => window.open(place.website, '_blank')}>
           Website
         </Button>
-        <ReserveForm 
-          place = {place}
-        />
+        <Button size="small" color="primary" onClick={() => window.open(place.website, '_blank')}>
+          Book Now
+        </Button>
       </CardActions>
     </Card>
   );
