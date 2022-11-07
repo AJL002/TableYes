@@ -9,7 +9,7 @@ export const ReserveForm = () => {
 
     return (
         <>
-            <Button onClick={() => setOpen(true)}>Test123</Button>
+            <Button color="warning" onClick={() => setOpen(true)}>Book Now</Button>
             <Dialog 
                 open = {open} 
                 onClose={() => setOpen(false)} 
@@ -20,7 +20,13 @@ export const ReserveForm = () => {
                         <TextField id="outlined-required" type="required" label="Full Name"/> 
                         <TextField id="outlined-number" type="number" label="Party Size"/> 
                         <h1>Comments: </h1>
-                        <TextField id="outlined-required" label="Comment"/> 
+                        <TextField autoFocus
+                            margin="dense"
+                            id="name"
+                            label="Comment"
+                            type="email"
+                            fullWidth
+                            variant="standard"/> 
                         <DialogContent>
                             <DialogContentText id='dialog-description'>Please arrive at least 10 minutes before your set reservation time.</DialogContentText>
                         </DialogContent>
