@@ -1,76 +1,29 @@
-import React, {useState, useEffect} from 'react';
-import { Grid } from '@material-ui/core';
-import CssBaseLine from '@material-ui/core/CssBaseLine';
-import Header from './components/Header/Header';
-import List from './components/List/List';
-import Map from './components/Map/Map';
-import { CropFree } from '@material-ui/icons';
-import {getPlacesData} from './api/index.js';
+import React from "react";
+import "./App.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { BrowserRouter, Link, Route, Switch } from "react-router-dom";
+import HomePage from "./components/HomePage/HomePage";
+import LoginPage from "./components/LoginPage/LoginPage";
+import SignupPage from "./components/SignupPage/SignupPage";
 
 const App = () => {
-    const [places, setPlaces] = useState([]);
-    const [childClicked, setChildClicked] = useState(null);
-    const [coordinates, setCoordinates] = useState({lat: 0, lng: 0});
-    const [bounds, setBounds] = useState({});
+  const token = localStorage.getItem("token");
 
-    const[isLoading, setIsLoading] = useState(false);
-    const[rating, setRating] = useState('');
-    const [filteredPlaces, setFilteredPlaces] = useState([]);
-
-    useEffect(()=>{
-        navigator.geolocation.getCurrentPosition(({ coords: {latitude, longitude}}) =>{
-            setCoordinates({lat: latitude, lng: longitude})
-        })
-    }, [])
-    useEffect(() => {
-        const filteredPlaces = places.filter((place) => place.rating > rating)
-
-        setFilteredPlaces(filteredPlaces);
-    }, [rating]);
-
-
-    useEffect(() => {
-
-        if(bounds.sw && bounds.ne) {
-            setIsLoading(true);
-
-            getPlacesData(bounds.sw, bounds.ne)
-            .then((data) => {
-                setPlaces(data?.filter((place) => place.name && place.num_reviews > 0));
-                setFilteredPlaces([]);
-                setIsLoading(false);
-            })}
-        
-    }, [bounds])
-
-    
-
-    return (
-        <>
-            <CssBaseLine/>
-            <Header setCoordinates = {setCoordinates}/>
-            <Grid container spacing={3} style={{width: '100%'}}>
-                <Grid item xs = {12} md={4}> {/* If you don't have filtered places, then display all places */}
-                    <List 
-                        places={filteredPlaces.length ? filteredPlaces : places}
-                        childClicked={childClicked}
-                        isLoading={isLoading}
-                        rating={rating}
-                        setRating={setRating}
-                    />
-                </Grid>
-                <Grid item xs = {12} md={8}>
-                    <Map 
-                        setCoordinates={setCoordinates}
-                        setBounds={setBounds}
-                        coordinates={coordinates}
-                        places={filteredPlaces.length ? filteredPlaces : places}
-                        setChildClicked={setChildClicked}
-                    />
-                </Grid>
-            </Grid>
-        </>
-    )
-}
+  return (
+    <BrowserRouter>
+      <Switch>
+        <Route exact path="/" component={token ? HomePage : LoginPage} />
+        <Route path="/signup" component={SignupPage} />
+        <Route
+          path="/logout"
+          component={() => {
+            localStorage.removeItem("token");
+            window.location.href = "/";
+          }}
+        />
+      </Switch>
+    </BrowserRouter>
+  );
+};
 
 export default App;
