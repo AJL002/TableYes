@@ -1,6 +1,7 @@
 import { Button, Dialog, DialogTitle, DialogContent, 
     DialogContentText, DialogActions, TextField, Radio,
     RadioGroup, FormControlLabel, Select, MenuItem, CardMedia} from '@material-ui/core'
+import {Form} from 'react-bootstrap'
 import axios from 'axios'
 import { useState } from 'react'
 import useStyles from './styles-form';
@@ -13,32 +14,32 @@ export const ReserveForm = ({place}) => {
     // restaurant(pass), lat(pass), lng(pass), name, size, time, comments 
 
     const [name, setName] = useState('');
+    const [comment, setComment] = useState('');
+    const [restaurantID, setRestaurantID] = useState('');
     const [size, setSize] = useState('');
     const [time, setTime] = useState('');
-    const [comment, setComment] = useState('');
+    
     const [open, setOpen] = useState(false);
 
-    var bodyFormData = new FormData();
-
     // store and pass token
-
-    /*const handleSubmit = (e) => {
-        axios.post("https://rrz0qonpwi.execute-api.us-east-1.amazonaws.cmom/dev/restaurants", 
+    const handleSubmit = (e) => {
+        axios.post("https://rrz0qonpwi.execute-api.us-east-1.amazonaws.com/dev/reservations", 
         {
-            fullname: name, // string
-            email: "email@email.com", // string
-            //time: time, // string
-            comment: comment, // string
+            userID: localStorage.getItem("token"), // token
+            restaurantID: place.name, // string
+            time: time, // string
+            partySize: size, 
         })
         .then((response) => console.log(response))
         .catch((err) => console.log(err));
-    }*/
+        setOpen(false)
+    }
 
-    const handleSubmit = (e) => {
+    const restaurantSubmit = (e) => {
         axios.post("https://rrz0qonpwi.execute-api.us-east-1.amazonaws.com/dev/restaurants", 
         {
             fullname: place.name, // string
-            email: "email2@email.com", // string
+            email: "test123@email.com", // string
             lat: place.latitude, // float
             long: place.longitude, // float
         })
@@ -59,7 +60,7 @@ export const ReserveForm = ({place}) => {
                 aria-labelledby='dialog-title' 
                 ariadescribedby='dialog-description'
             >
-                <form onSubmit = {handleSubmit}>
+                <Form>
                     <DialogTitle className={classes.DialogTitle}>{place.name} | {place.address}</DialogTitle>
                     <CardMedia
                         style={{ height: 300 }}
@@ -69,6 +70,7 @@ export const ReserveForm = ({place}) => {
                     <DialogTitle className={classes.DialogTitle}>Reservation Details</DialogTitle>
                         <TextField // Name
                             className={classes.TextField} 
+                            required
                             id="outlined-required" 
                             type="required" 
                             label="Full Name"
@@ -78,6 +80,7 @@ export const ReserveForm = ({place}) => {
                     <DialogTitle className={classes.DialogTitle}>Party Size</DialogTitle>
                         <Select // Size
                             className = {classes.Select}
+                            required
                             labelId="party-size-select"
                             id="party-size-select"
                             value={size}
@@ -97,6 +100,7 @@ export const ReserveForm = ({place}) => {
                         <DialogTitle className={classes.DialogTitle}>Time</DialogTitle>
                             <TextField
                                 className={classes.TextField} // Time Select
+                                required
                                 id="time"
                                 type="time"
                                 defaultValue="19:30"
@@ -124,13 +128,13 @@ export const ReserveForm = ({place}) => {
                         <DialogContent>
                             <DialogContentText id='dialog-description'>Please arrive at least 10 minutes before your reserved time.</DialogContentText>
                         </DialogContent>
-                    <p>{name} and {size} and {time} and {comment}</p>
+                    <p>{localStorage.getItem("token")} and {size} and {time} and {place.name}</p>
                     <DialogActions>
                         <Button onClick={() => setOpen(false)}>Cancel</Button>
-                        <Button onClick={() => setOpen(false)} autoFocus>Submit</Button>
-                        <Button onClick={handleSubmit}>Test</Button>
+                        <Button variant='outlined' onClick={() => setOpen(false)}>Submit</Button>
+                        <Button onClick={restaurantSubmit}>Test</Button>
                     </DialogActions>
-                </form>
+                </Form>
             </Dialog>
         </div>
         
