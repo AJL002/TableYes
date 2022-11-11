@@ -138,7 +138,7 @@ module.exports.submitUser =  (event, context, callback) => {
     return;
   }
 
-  submitUser(userInfo(name, email))
+  submitUserDB(userInfo(name, email))
     .then(res => {
       callback(null, {
         statusCode: 200,
@@ -158,18 +158,23 @@ module.exports.submitUser =  (event, context, callback) => {
       });
     });
 };
-  
-  const submitUser = user => {
+
+
+//const is for local use and module.exports is for global invoke
+const submitUserDB = module.exports.submitUserDB = user => {
+  //for adding a user to database
     console.log('Submitting user ', user);
     const userInfo = {
       TableName: process.env.CANDIDATE_EMAIL_TABLE,
       Item: user,
     };
+    //put user with (userinfo) into database
     return dynamoDb.put(userInfo).promise()
       .then(res => user);
   };
 
-  const userInfo = (name, email) => {
+  //func to create user object, with parameters for table
+  const userInfo = module.exports.userInfo = (name, email) => {
     const timestamp = new Date().getTime();
     return {
       id: uuid.v1(),

@@ -2,7 +2,7 @@ exports.handler = async(event, context, callback) => {
   //  https://github.com/shivangchauhan7/serverless-auth
   const AWS = require('aws-sdk');
   const { sendResponse, validateInput } = require("../functions");
-  const { submitUser } = require('../api/candidates');
+  const { submitUserDB, userInfo } = require('./candidate');
 
   
   const cognito = new AWS.CognitoIdentityServiceProvider();
@@ -38,7 +38,7 @@ exports.handler = async(event, context, callback) => {
      const response = await cognito.adminCreateUser(params).promise();
      
      if (response.User) {
-      submitUser(userInfo(name, email, password))
+      submitUserDB(userInfo(name, email, password))
       const paramsForSetPass = {
         Password: password,
         UserPoolId: user_pool_id,
