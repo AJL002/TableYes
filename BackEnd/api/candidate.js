@@ -8,30 +8,34 @@ const { sendResponse, getUserID } = require('../functions/index');
 
 
 AWS.config.setPromisesDependency(require('bluebird'));
-
+const cognito = new AWS.CognitoIdentityServiceProvider();
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
-module.exports.submit = (event, context, callback) => {
+module.exports.submitRestaurant = (event, context, callback) => {
   const requestBody = JSON.parse(event.body);
-  const fullname = requestBody.fullname;
+  const fullname = requestBody.fullname;``
   const email = requestBody.email;
-  const coordinates = requestBody.coordinates; 
-  const userID = getUserID;
+  const lat = requestBody.lat; 
+  const long = requestBody.long;
+  const token = requestBody.token;
+  //const userType = requestBody.userType; || typeof userType !== 'string'
+  const userID =  getUserID(token) //event.requestContext.authorizer.claims['cognito:email'];
+  //console.log('userID:', userID);
 
-  if (typeof fullname !== 'string' || typeof email !== 'string' || typeof coordinates !== 'number') {
+  if (typeof fullname !== 'string' || typeof email !== 'string' || typeof lat !== 'number' || typeof long !== 'number' ) {
     console.error('Validation Failed');
-    callback(new Error('Couldn\'t submit candidate because of validation errors.'));
+    callback(new Error('Couldn\'t submit restaurant because of validation errors.'));
     return;
   }
 
-  submitRestaurant(restaurantInfo(fullname, email, coordinates, userID))
+  submitRestaurant(restaurantInfo(fullname, email, lat, long, userID))
     .then(res => {
       callback(null, {
         statusCode: 200,
         body: JSON.stringify({
-          message: `Sucessfully submitted restaurant with email ${email}`,
+          message: `Sucessfully submitRestaurantted restaurant with email ${email}`,
           restaurantId: res.id,
-          userID: res.userID
+          userID: res.userID,
         })
       });
     })
@@ -40,12 +44,11 @@ module.exports.submit = (event, context, callback) => {
       callback(null, {
         statusCode: 500,
         body: JSON.stringify({
-          message: `Unable to submit restaurant with email ${email}`
+          message: `Unable to submitRestaurant restaurant with email ${email}`,
         })
       })
     });
 };
-
 
 const submitRestaurant = restaurant => {
   console.log('Submitting restaurant');
@@ -57,15 +60,17 @@ const submitRestaurant = restaurant => {
     .then(res => restaurant);
 };
 
-const restaurantInfo = (fullname, email, coordinates, userID) => {
+const restaurantInfo = (fullname, email, lat, long, userID) => {
   const timestamp = new Date().getTime();
   return {
     id: uuid.v1(),
     userID: userID,
     fullname: fullname,
     email: email,
-    coordinates: coordinates,
-    submittedAt: timestamp,
+    //owner-id: owner-id,
+    lat: lat,
+    long: long,
+    submitRestauranttedAt: timestamp,
     updatedAt: timestamp,
   };
 };
@@ -73,7 +78,7 @@ const restaurantInfo = (fullname, email, coordinates, userID) => {
 module.exports.list = (event, context, callback) => {
   var params = {
       TableName: process.env.CANDIDATE_TABLE,
-      ProjectionExpression: "id, fullname, email, coordinates"
+      ProjectionExpression: "id, fullname, email, coordinate"
   };
 
   console.log("Scanning Candidate table.");
@@ -122,6 +127,114 @@ module.exports.get = (event, context, callback) => {
     });
 };
 
+module.exports.submitUser =  (event, context, callback) => {
+  const requestBody = JSON.parse(event.body);
+  const fullname = requestBody.fullname;
+  const email = requestBody.email;
+
+  if (typeof fullname !== 'string' || typeof email !== 'string') {
+    console.error('Validation Failed');
+    callback(new Error('Couldn\'t submit user because of validation errors.'));
+    return;
+  }
+
+  submitUser(userInfo(fullname, email))
+    .then(res => {
+      callback(null, {
+        statusCode: 200,
+        body: JSON.stringify({
+          message: `Sucessfully submitted user with email ${email}`,
+          userId: res.id,
+        })
+      });
+    })
+    .catch(err => {
+      console.log(err);
+      callback(null, {
+        statusCode: 500,
+        body: JSON.stringify({
+          message: `Unable to submitted user with email ${email}`,
+        })
+      });
+    });
+};
+  
+  const submitUser = user => {
+    console.log('Submitting user ', user);
+    const userInfo = {
+      TableName: process.env.CANDIDATE_EMAIL_TABLE,
+      Item: user,
+    };
+    return dynamoDb.put(userInfo).promise()
+      .then(res => user);
+  };
+
+  const userInfo = (fullname, email) => {
+    const timestamp = new Date().getTime();
+    return {
+      id: uuid.v1(),
+      fullname: fullname,
+      email: email,
+      submitRestauranttedAt: timestamp,
+      updatedAt: timestamp,
+    };
+  };
+
+  module.exports.submitReservation =  (event, context, callback) => {
+    const requestBody = JSON.parse(event.body);
+    const restaurantID = requestBody.restaurantID;
+    const reserveTime = requestBody.reserveTime;
+    const partySize = requestBody.partySize;
+    const token = requestBody.token;
+    const userID =  getUserID(token)
+  
+  
+    submitReservation(reservationInfo(userID, restaurantID, reserveTime, partySize))
+      .then(res => {
+        callback(null, {
+          statusCode: 200,
+          body: JSON.stringify({
+            message: `Sucessfully submitted reservation `,
+            reserveID: res.id,
+          })
+        });
+      })
+      .catch(err => {
+        console.log(err);
+        callback(null, {
+          statusCode: 500,
+          body: JSON.stringify({
+            message: `Unable to submit reservation`,
+          })
+        });
+      });
+  };
+    
+    const submitReservation = reservation => {
+      console.log('Submitting reservation ', reservation);
+      const reservationInfo = {
+        TableName: process.env.RESERVATION_TABLE,
+        Item: reservation,
+      };
+      return dynamoDb.put(reservationInfo).promise()
+        .then(res => reservation);
+    };
+  
+    const reservationInfo = (userID, restaurantID, reserveTime, partySize) => {
+      const timestamp = new Date().getTime();
+      return {
+        id: uuid.v1(),
+        userID: userID,
+        restaurantID: restaurantID,
+        reserveTime: reserveTime,
+        partySize: partySize,
+        submitreservationAt: timestamp,
+        updatedAt: timestamp,
+      };
+    };
+  
+  
+
 module.exports.delete = async (event, context) => {
   let body;
   let statusCode = 200;
@@ -149,5 +262,5 @@ module.exports.delete = async (event, context) => {
     body,
     headers
   };
-  }
+  };
   

@@ -1,3 +1,9 @@
+
+//const AWS = require('aws-jwt-verify');
+var jwt = require('jsonwebtoken');
+var jwkToPem = require('jwk-to-pem');
+
+
 const sendResponse = (statusCode, body) => {
     const response = {
         statusCode: statusCode,
@@ -19,29 +25,27 @@ const validateInput = (data) => {
     return true
 }
 
-const getUserID = () => {
-    AWS.config.credentials.get(function(err, resp) {
-        if (err) {
-            console.log('get creds error', err);
-            alert('get creds error' + err);
-        } else {
-            console.log('get creds success', AWS.config.credentials);
-
-            // Credentials will be available when this function is called.
-            accessKeyId = AWS.config.credentials.accessKeyId;
-            secretAccessKey = AWS.config.credentials.secretAccessKey;
-            sessionToken = AWS.config.credentials.sessionToken;
-
-            console.log("in creds.get - accessKeyId: " + accessKeyId);
-            console.log("in creds.get - secretyKey: " + secretAccessKey);
-            console.log("in creds.get - sessionToken: " + sessionToken);
-            // get this Id 
-            console.log('UserID: ', AWS.config.credentials.params.IdentityId);
-        }  
+function getHeaderFromToken(token) {
+    const decodedToken = jwt.decode(token, {
+     complete: true
     });
-    return  AWS.config.credentials.params.IdentityId;
-}
+   
+    if (!decodedToken) {
+        throw new Error('provided token does not decode as JWT');
+    }
+   
+    return decodedToken;
+   }
 
+
+const getUserID = (token) => {
+        const decodedToken = jwt.decode(token, {
+         complete: true
+        });
+    return decodedToken;
+};
+
+    
 module.exports = {
     sendResponse, validateInput, getUserID
 };

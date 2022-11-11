@@ -27,6 +27,7 @@ exports.handler = async(event, context, callback) => {
     const response = await cognito.adminInitiateAuth(params).promise();
     return sendResponse(200, {
       message: 'Success',
-      token: response.AuthenticationResult.IdToken
+      idToken: response.AuthenticationResult.IdToken,
+      //accessToken: response.AuthenticationResult.AccessToken,
     })
   }

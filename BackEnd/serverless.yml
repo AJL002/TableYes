@@ -14,6 +14,7 @@ provider:
     DOMAIN_SUFFIX: burgos-program
     CANDIDATE_TABLE: ${self:service}-${opt:stage, self:provider.stage}
     CANDIDATE_EMAIL_TABLE: "candidate-email-${opt:stage, self:provider.stage}"
+    RESERVATION_TABLE: "reservation-table-${opt:stage, self:provider.stage}"
     user_pool_id: { Ref: UserPool }
     client_id: { Ref: UserClient }
 
@@ -38,7 +39,7 @@ resources:
         AttributeDefinitions:
           -
             AttributeName: "id"
-            AttributeType: "S"   
+            AttributeType: "S"
         KeySchema:
           -
             AttributeName: "id"
@@ -49,6 +50,42 @@ resources:
         StreamSpecification:
           StreamViewType: "NEW_AND_OLD_IMAGES"
         TableName: ${self:provider.environment.CANDIDATE_TABLE}
+    UsersDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: "id"
+            AttributeType: "S"
+        KeySchema:
+          -
+            AttributeName: "id"
+            KeyType: "HASH"
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamViewType: "NEW_AND_OLD_IMAGES"
+        TableName: ${self:provider.environment.CANDIDATE_EMAIL_TABLE}
+    ReservationDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: "id"
+            AttributeType: "S"
+        KeySchema:
+          -
+            AttributeName: "id"
+            KeyType: "HASH"
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamViewType: "NEW_AND_OLD_IMAGES"
+        TableName: ${self:provider.environment.RESERVATION_TABLE}
     # Cognito - User pool
     CognitoUserPool:
       Type: AWS::Cognito::UserPool
@@ -175,13 +212,13 @@ resources:
 
 
 functions:
-  candidateSubmission:
-    handler: api/candidate.submit
+  restaurantSubmission:
+    handler: api/candidate.submitRestaurant
     memorySize: 128
-    description: Submit candidate information and starts interview process.
+    description: Submit restaurant information 
     events:
       - http:
-          path: candidates
+          path: restaurants
           method: post
           authorizer:
             name: PrivateAuthorizer
@@ -192,17 +229,24 @@ functions:
                 - Arn
             claims:
               - email
-
-    
-  listCandidates:
-    handler: api/candidate.list
+              - sub
+  userSubmission:
+    handler: api/candidate.submitUser
     memorySize: 128
-    description: List all candidates
+    description: Submit user information 
     events:
-      - http: 
-          path: candidates
-          method: get
-          cors: true
+      - http:
+          path: user
+          method: post
+
+  reservationSubmission:
+    handler: api/candidate.submitReservation
+    memorySize: 128
+    description: Submit reservation info 
+    events:
+      - http:
+          path: reservations
+          method: post
           authorizer:
             name: PrivateAuthorizer
             type: COGNITO_USER_POOLS
@@ -212,21 +256,42 @@ functions:
                 - Arn
             claims:
               - email
+              - sub
+
+  listRestaurants:
+    handler: api/candidate.list
+    memorySize: 128
+    description: List all restaurants
+    events:
+      - http: 
+          path: restaurants
+          method: get
+          cors: true
+          #authorizer:
+            #name: PrivateAuthorizer
+            #type: COGNITO_USER_POOLS
+            #arn:
+              #Fn::GetAtt:
+                #- UserPool
+                #- Arn
+            #claims:
+              #- email
+              #- sub
   
-  candidateDetails:
+  restaurantDetails:
     handler: api/candidate.get
     description: List specific candidate detail
     events:
       - http:
-          path: candidates/{id}
+          path: restaurants/{id}
           method: get
 
-  deleteCandidate:
+  deleteRestaurant:
     handler: api/candidate.delete
     description: delete specific candidate 
     events:
       - http:
-          path: candidates/{id}
+          path: restaurants/{id}
           method: delete 
 
   loginUser:
