@@ -33,7 +33,7 @@ module.exports.submitRestaurant = (event, context, callback) => {
       callback(null, {
         statusCode: 200,
         body: JSON.stringify({
-          message: `Sucessfully submitRestaurantted restaurant with email ${email}`,
+          message: `Sucessfully submitted restaurant with email ${email}`,
           restaurantId: res.id,
           userID: res.userID,
         })
@@ -44,7 +44,7 @@ module.exports.submitRestaurant = (event, context, callback) => {
       callback(null, {
         statusCode: 500,
         body: JSON.stringify({
-          message: `Unable to submitRestaurant restaurant with email ${email}`,
+          message: `Unable to submit restaurant with email ${email}`,
         })
       })
     });
@@ -81,7 +81,7 @@ module.exports.list = (event, context, callback) => {
       ProjectionExpression: "id, fullname, email, coordinate"
   };
 
-  console.log("Scanning Candidate table.");
+  console.log("Scanning restaurant table.");
   const onScan = (err, data) => {
 
       if (err) {
@@ -92,7 +92,7 @@ module.exports.list = (event, context, callback) => {
           return callback(null, {
               statusCode: 200,
               body: JSON.stringify({
-                  candidates: data.Items
+                  restaurants: data.Items
               })
           });
       }
@@ -129,22 +129,22 @@ module.exports.get = (event, context, callback) => {
 
 module.exports.submitUser =  (event, context, callback) => {
   const requestBody = JSON.parse(event.body);
-  const fullname = requestBody.fullname;
+  const name = requestBody.name;
   const email = requestBody.email;
 
-  if (typeof fullname !== 'string' || typeof email !== 'string') {
+  if (typeof name !== 'string' || typeof email !== 'string') {
     console.error('Validation Failed');
     callback(new Error('Couldn\'t submit user because of validation errors.'));
     return;
   }
 
-  submitUser(userInfo(fullname, email))
+  submitUser(userInfo(name, email))
     .then(res => {
       callback(null, {
         statusCode: 200,
         body: JSON.stringify({
           message: `Sucessfully submitted user with email ${email}`,
-          userId: res.id,
+          //userId: res.id,
         })
       });
     })
@@ -153,7 +153,7 @@ module.exports.submitUser =  (event, context, callback) => {
       callback(null, {
         statusCode: 500,
         body: JSON.stringify({
-          message: `Unable to submitted user with email ${email}`,
+          message: `Unable to submit user with email ${email}`,
         })
       });
     });
@@ -169,11 +169,11 @@ module.exports.submitUser =  (event, context, callback) => {
       .then(res => user);
   };
 
-  const userInfo = (fullname, email) => {
+  const userInfo = (name, email) => {
     const timestamp = new Date().getTime();
     return {
       id: uuid.v1(),
-      fullname: fullname,
+      name: name,
       email: email,
       submitRestauranttedAt: timestamp,
       updatedAt: timestamp,
@@ -196,6 +196,7 @@ module.exports.submitUser =  (event, context, callback) => {
           body: JSON.stringify({
             message: `Sucessfully submitted reservation `,
             reserveID: res.id,
+            userID: res.userID,
           })
         });
       })
