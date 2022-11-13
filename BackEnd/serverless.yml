@@ -26,6 +26,7 @@ provider:
         - dynamodb:GetItem
         - dynamodb:PutItem
         - dynamodb:DeleteItem
+        - dynamodb:UpdateItem
         - cognito-idp:* 
         
       Resource: "*"

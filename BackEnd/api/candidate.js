@@ -6,6 +6,12 @@ const uuid = require('uuid');
 const AWS = require('aws-sdk'); 
 const { sendResponse, getUserID } = require('../functions/index');
 
+const {
+  DynamoDBClient, UpdateItemCommand,
+} = require('@aws-sdk/client-dynamodb');
+const { marshall, unmarshall } = require('@aws-sdk/util-dynamodb');
+
+
 
 AWS.config.setPromisesDependency(require('bluebird'));
 const cognito = new AWS.CognitoIdentityServiceProvider();
@@ -127,41 +133,8 @@ module.exports.get = (event, context, callback) => {
     });
 };
 
-module.exports.submitUser =  (event, context, callback) => {
-  const requestBody = JSON.parse(event.body);
-  const name = requestBody.name;
-  const email = requestBody.email;
-
-  if (typeof name !== 'string' || typeof email !== 'string') {
-    console.error('Validation Failed');
-    callback(new Error('Couldn\'t submit user because of validation errors.'));
-    return;
-  }
-
-  submitUserDB(userInfo(name, email))
-    .then(res => {
-      callback(null, {
-        statusCode: 200,
-        body: JSON.stringify({
-          message: `Sucessfully submitted user with email ${email}`,
-          //userId: res.id,
-        })
-      });
-    })
-    .catch(err => {
-      console.log(err);
-      callback(null, {
-        statusCode: 500,
-        body: JSON.stringify({
-          message: `Unable to submit user with email ${email}`,
-        })
-      });
-    });
-};
-
-
-//const is for local use and module.exports is for global invoke
-const submitUserDB = module.exports.submitUserDB = user => {
+//module.exports is for global invoke
+module.exports.submitUserDB = user => {
   //for adding a user to database
     console.log('Submitting user ', user);
     const userInfo = {
@@ -174,12 +147,13 @@ const submitUserDB = module.exports.submitUserDB = user => {
   };
 
   //func to create user object, with parameters for table
-  const userInfo = module.exports.userInfo = (name, email) => {
+  const userInfo = module.exports.userInfo = (id, name, email) => {
     const timestamp = new Date().getTime();
     return {
-      id: uuid.v1(),
+      id: id,
       name: name,
       email: email,
+      reservations: {},
       submitRestauranttedAt: timestamp,
       updatedAt: timestamp,
     };
@@ -191,11 +165,19 @@ const submitUserDB = module.exports.submitUserDB = user => {
     const reserveTime = requestBody.reserveTime;
     const partySize = requestBody.partySize;
     const token = requestBody.token;
-    const userID =  getUserID(token)
+    const userID =  getUserID(token);
+    const key = {
+      email: userID
+    };
+    
   
   
     submitReservation(reservationInfo(userID, restaurantID, reserveTime, partySize))
       .then(res => {
+        const updates = {
+          reservations: reservationInfo(userID, restaurantID, reserveTime, partySize)
+        };
+        updateReserv2User(process.env.CANDIDATE_EMAIL_TABLE, key, updates);
         callback(null, {
           statusCode: 200,
           body: JSON.stringify({
@@ -215,6 +197,46 @@ const submitUserDB = module.exports.submitUserDB = user => {
         });
       });
   };
+
+  
+
+  const updateReserv2User = async (tableName, key , item) => {
+    const itemKeys = Object.keys(item);
+
+  // When we do updates we need to tell DynamoDB what fields we want updated.
+  // If that's not annoying enough, we also need to be careful as some field names
+  // are reserved - so DynamoDB won't like them in the UpdateExpressions list.
+  // To avoid passing reserved words we prefix each field with "#field" and provide the correct
+  // field mapping in ExpressionAttributeNames. The same has to be done with the actual
+  // value as well. They are prefixed with ":value" and mapped in ExpressionAttributeValues
+  // along witht heir actual value
+  const { Attributes } = await dynamoDb.send(new UpdateItemCommand({
+    TableName: tableName,
+    Key: marshall(key),
+    ReturnValues: 'ALL_NEW',
+    UpdateExpression: `SET ${itemKeys.map((k, index) => `#field${index} = :value${index}`).join(', ')}`,
+    ExpressionAttributeNames: itemKeys.reduce((accumulator, k, index) => ({ ...accumulator, [`#field${index}`]: k }), {}),
+    ExpressionAttributeValues: marshall(itemKeys.reduce((accumulator, k, index) => ({ ...accumulator, [`:value${index}`]: item[k] }), {})),
+  }));
+
+  return unmarshall(Attributes);
+};
+  //   const reservation = reservationInfo(userID, restaurantID, reserveTime, partySize);
+  
+  //   const params = {
+  //     TableName: process.env.CANDIDATE_EMAIL_TABLE,
+  //     Key: {
+  //       "email": userID,
+  //     },
+  //     UpdateExpression: 'SET reservation = :r',
+  //     ExpressionAttributeValues: {
+  //       ':r': reservation,
+  //     },
+  //   };
+  
+  //   await dynamoDb.update(params).promise();
+  // }
+  
     
     const submitReservation = reservation => {
       console.log('Submitting reservation ', reservation);

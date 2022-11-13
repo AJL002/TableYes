@@ -25,26 +25,20 @@ const validateInput = (data) => {
     return true
 }
 
-function getHeaderFromToken(token) {
+
+
+function getUserID (token) {
     const decodedToken = jwt.decode(token, {
-     complete: true
-    });
+        complete: true
+       });
+      
+       if (!decodedToken) {
+           throw new Error('provided token does not decode as JWT');
+       }
+      
+       return decodedToken.payload.sub;
+      };
    
-    if (!decodedToken) {
-        throw new Error('provided token does not decode as JWT');
-    }
-   
-    return decodedToken;
-   }
-
-
-const getUserID = (token) => {
-        const decodedToken = jwt.decode(token, {
-         complete: true
-        });
-    return decodedToken;
-};
-
     
 module.exports = {
     sendResponse, validateInput, getUserID

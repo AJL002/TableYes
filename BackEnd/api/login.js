@@ -28,6 +28,6 @@ exports.handler = async(event, context, callback) => {
     return sendResponse(200, {
       message: 'Success',
       idToken: response.AuthenticationResult.IdToken,
-      //accessToken: response.AuthenticationResult.AccessToken,
+      accessToken: response.AuthenticationResult.AccessToken,
     })
   }
