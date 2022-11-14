@@ -4,9 +4,7 @@ exports.handler = async(event, context, callback) => {
   const { sendResponse, validateInput } = require("../functions");
   const { submitUserDB, userInfo } = require('./candidate');
 
-  
   const cognito = new AWS.CognitoIdentityServiceProvider();
-
   
   //validate request body
   const isValid = validateInput(event.body);
@@ -23,9 +21,8 @@ exports.handler = async(event, context, callback) => {
       } = process.env
      
      const params = {
-       ClientId: user_pool_id,
+       UserPoolId: user_pool_id,
        Username: email,
-       Password : password,
        UserAttributes: [{
            Name: 'email',
            Value: email
@@ -34,23 +31,25 @@ exports.handler = async(event, context, callback) => {
            Name: 'email_verified',
            Value: 'true'
          }
-       ],
-       MessageAction: 'SUPPRESS'
+       ]
      }
-     const response = await cognito.signup(params).promise();
+     const response = await cognito.adminCreateUser(params).promise();
      
-     if (response.UserSub) {
-      submitUserDB(userInfo(response.UserSub,name, email, password))
-      // const paramsForSetPass = {
-      //   Password: password,
-      //   UserPoolId: user_pool_id,
-      //   Username: email,
-      //   Permanent: true
-      // };
-    
-    
-     // await cognito.adminSetUserPassword(paramsForSetPass).promise();
+     if (response.User) {
+      const paramsForSetPass = {
+        Password: password,
+        UserPoolId: user_pool_id,
+        Username: email,
+        Permanent: true
+      };
+      delete params.UserAttributes;
+      delete params.MessageAction;
       
+     await cognito.adminSetUserPassword(paramsForSetPass).promise();
+     const res = await cognito.adminGetUser(params).promise();
+     console.log("res ",res);
+     submitUserDB(userInfo(res.UserAttributes[0].Value, name, email, password))
+     
     }
     return sendResponse(200, {
       message: 'User registration successful'

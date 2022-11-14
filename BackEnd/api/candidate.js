@@ -6,26 +6,22 @@ const uuid = require('uuid');
 const AWS = require('aws-sdk'); 
 const { sendResponse, getUserID } = require('../functions/index');
 
-const {
-  DynamoDBClient, UpdateItemCommand,
-} = require('@aws-sdk/client-dynamodb');
 const { marshall, unmarshall } = require('@aws-sdk/util-dynamodb');
 
 
 
 AWS.config.setPromisesDependency(require('bluebird'));
-const cognito = new AWS.CognitoIdentityServiceProvider();
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
-module.exports.submitRestaurant = (event, context, callback) => {
+module.exports.submitRestaurant = async (event, context, callback) => {
   const requestBody = JSON.parse(event.body);
-  const fullname = requestBody.fullname;``
+  const fullname = requestBody.fullname;
   const email = requestBody.email;
   const lat = requestBody.lat; 
   const long = requestBody.long;
   const token = requestBody.token;
   //const userType = requestBody.userType; || typeof userType !== 'string'
-  const userID =  getUserID(token) //event.requestContext.authorizer.claims['cognito:email'];
+  const ownerID =  getUserID(token); //event.requestContext.authorizer.claims['cognito:email'];
   //console.log('userID:', userID);
 
   if (typeof fullname !== 'string' || typeof email !== 'string' || typeof lat !== 'number' || typeof long !== 'number' ) {
@@ -33,15 +29,39 @@ module.exports.submitRestaurant = (event, context, callback) => {
     callback(new Error('Couldn\'t submit restaurant because of validation errors.'));
     return;
   }
+  
+   // get user
+   console.log("retrieving user ",userID);
+   
+   var user = await getUser(ownerID);
+   console.log("user ",user);
+  
+   const restaurant = restaurantInfo(fullname, email, lat, long, ownerID);
+   var restaurants = new Array();
+   
+   if ( typeof user.restaurants != "undefined") {
+     console.log("restaurants not empty", restaurants);
+     restaurants = user.restaurants;
+   }
+   console.log("restaurants:", restaurants);
+    
+   console.log("adding restaurants ", restaurants);
+   restaurants.push(restaurant.id);
+   
+   user.restaurants = restaurants;
+   console.log("user ",user);
+  
+   //put user back to DynamoDB
+   await putUser(user);
 
-  submitRestaurant(restaurantInfo(fullname, email, lat, long, userID))
+  await submitRestaurant(restaurantInfo(fullname, email, lat, long, ownerID))
     .then(res => {
       callback(null, {
         statusCode: 200,
         body: JSON.stringify({
           message: `Sucessfully submitted restaurant with email ${email}`,
           restaurantId: res.id,
-          userID: res.userID,
+          ownerID: res.ownerID,
         })
       });
     })
@@ -56,24 +76,23 @@ module.exports.submitRestaurant = (event, context, callback) => {
     });
 };
 
-const submitRestaurant = restaurant => {
+const submitRestaurant = async restaurant => {
   console.log('Submitting restaurant');
   const restaurantInfo = {
-    TableName: process.env.CANDIDATE_TABLE,
+    TableName: process.env.RESTAURANTS_TABLE,
     Item: restaurant,
   };
   return dynamoDb.put(restaurantInfo).promise()
     .then(res => restaurant);
 };
 
-const restaurantInfo = (fullname, email, lat, long, userID) => {
+const restaurantInfo = (fullname, email, lat, long, ownerID) => {
   const timestamp = new Date().getTime();
   return {
     id: uuid.v1(),
-    userID: userID,
+    ownerID: ownerID,
     fullname: fullname,
     email: email,
-    //owner-id: owner-id,
     lat: lat,
     long: long,
     submitRestauranttedAt: timestamp,
@@ -83,7 +102,7 @@ const restaurantInfo = (fullname, email, lat, long, userID) => {
 
 module.exports.list = (event, context, callback) => {
   var params = {
-      TableName: process.env.CANDIDATE_TABLE,
+      TableName: process.env.RESTAURANTS_TABLE,
       ProjectionExpression: "id, fullname, email, coordinate"
   };
 
@@ -109,13 +128,60 @@ module.exports.list = (event, context, callback) => {
 
 };
 
-	
+var getUser = async id => {
+   const params = {
+    TableName: process.env.USER_TABLE,
+    Key: {
+      id: id
+    }
+  };
+  console.log('calling dynamoDb');
+  const user = await dynamoDb.get(params).promise().then(function(user) {
+    console.log("got something ", user);
+    return user;
+  })
+  .catch(function(err) {
+    console.log(err);
+  });
+  return user.Item;
+}	
+
+var getRestaurant = async id => {
+   const params = {
+    TableName: process.env.RESTAURANTS_TABLE,
+    Key: {
+      id: id
+    }
+  };
+  console.log('calling dynamoDb');
+  const rest = await dynamoDb.get(params).promise().then(function(rest) {
+    console.log("got something ", rest);
+    return rest;
+  })
+  .catch(function(err) {
+    console.log(err);
+  });
+  return rest.Item;
+}	
+
+  //func to create user object, with parameters for table
+   module.exports.userInfo = (id, name, email) => {
+    const timestamp = new Date().getTime();
+    return {
+      id: id,
+      name: name,
+      email: email,
+      createdAt: timestamp,
+      updatedAt: timestamp,
+    };
+  };
+  
 module.exports.get = (event, context, callback) => {
   const params = {
-    TableName: process.env.CANDIDATE_TABLE,
+    TableName: process.env.RESTAURANTS_TABLE,
     Key: {
-      id: event.pathParameters.id,
-    },
+      id: event.pathParameters.id
+    }
   };
  
   dynamoDb.get(params).promise()
@@ -134,11 +200,11 @@ module.exports.get = (event, context, callback) => {
 };
 
 //module.exports is for global invoke
-module.exports.submitUserDB = user => {
+var putUser = module.exports.submitUserDB = user => {
   //for adding a user to database
     console.log('Submitting user ', user);
     const userInfo = {
-      TableName: process.env.CANDIDATE_EMAIL_TABLE,
+      TableName: process.env.USER_TABLE,
       Item: user,
     };
     //put user with (userinfo) into database
@@ -147,105 +213,97 @@ module.exports.submitUserDB = user => {
   };
 
   //func to create user object, with parameters for table
-  const userInfo = module.exports.userInfo = (id, name, email) => {
+   module.exports.userInfo = (id, name, email) => {
     const timestamp = new Date().getTime();
     return {
       id: id,
       name: name,
       email: email,
-      reservations: {},
-      submitRestauranttedAt: timestamp,
+      createdAt: timestamp,
       updatedAt: timestamp,
     };
   };
 
-  module.exports.submitReservation =  (event, context, callback) => {
+  module.exports.submitReservation = async (event, context, callback) => {
     const requestBody = JSON.parse(event.body);
     const restaurantID = requestBody.restaurantID;
     const reserveTime = requestBody.reserveTime;
     const partySize = requestBody.partySize;
     const token = requestBody.token;
     const userID =  getUserID(token);
-    const key = {
-      email: userID
-    };
     
+    
+   // get user
+   console.log("retrieving user ",userID);
+   
+   var user = await getUser(userID);
+   console.log("user ",user);
+
+  //create reservations field in user
+   const reservation = reservationInfo(userID, restaurantID, reserveTime, partySize);
+   var reservations = new Array();
+   if ( typeof user.reservations != "undefined") {
+     console.log("reservations not empty", reservations);
+     reservations = user.reservations;
+   }
+   console.log("reservations:", reservations);
+    //push reservation obj to user 
+   console.log("adding reservation ", reservation);
+   reservations.push(reservation);
+   
+   user.reservations = reservations;
+   console.log("user ",user);
   
+   //put user back to DynamoDB
+   await putUser(user);
   
-    submitReservation(reservationInfo(userID, restaurantID, reserveTime, partySize))
-      .then(res => {
-        const updates = {
-          reservations: reservationInfo(userID, restaurantID, reserveTime, partySize)
-        };
-        updateReserv2User(process.env.CANDIDATE_EMAIL_TABLE, key, updates);
-        callback(null, {
-          statusCode: 200,
-          body: JSON.stringify({
-            message: `Sucessfully submitted reservation `,
-            reserveID: res.id,
-            userID: res.userID,
-          })
-        });
-      })
-      .catch(err => {
-        console.log(err);
-        callback(null, {
-          statusCode: 500,
-          body: JSON.stringify({
-            message: `Unable to submit reservation`,
-          })
-        });
+  //grab restaurant
+  var restaurant = await getRestaurant(restaurantID);
+  
+   if ( typeof restaurant.reservations == "undefined") {
+     console.log("reservations empty in restaurant");
+     restaurant.reservations = new Array();
+   }
+  //add reservation obj to restaurant
+  restaurant.reservations.push(reservation);
+  //update restaurant
+  await submitRestaurant(restaurant);
+  
+   await submitReservation(reservation)
+    .then(res => {
+      console.log("Inside then");
+      callback(null, {
+        statusCode: 200,
+        body: JSON.stringify({
+          message: `Sucessfully submitted reservation`,
+        })
       });
+    })
+    .catch(err => {
+      console.log(err);
+      callback(null, {
+        statusCode: 500,
+        body: JSON.stringify({
+          message: `Unable to submit reservation `,
+        })
+      });
+    });
+      
   };
 
-  
-
-  const updateReserv2User = async (tableName, key , item) => {
-    const itemKeys = Object.keys(item);
-
-  // When we do updates we need to tell DynamoDB what fields we want updated.
-  // If that's not annoying enough, we also need to be careful as some field names
-  // are reserved - so DynamoDB won't like them in the UpdateExpressions list.
-  // To avoid passing reserved words we prefix each field with "#field" and provide the correct
-  // field mapping in ExpressionAttributeNames. The same has to be done with the actual
-  // value as well. They are prefixed with ":value" and mapped in ExpressionAttributeValues
-  // along witht heir actual value
-  const { Attributes } = await dynamoDb.send(new UpdateItemCommand({
-    TableName: tableName,
-    Key: marshall(key),
-    ReturnValues: 'ALL_NEW',
-    UpdateExpression: `SET ${itemKeys.map((k, index) => `#field${index} = :value${index}`).join(', ')}`,
-    ExpressionAttributeNames: itemKeys.reduce((accumulator, k, index) => ({ ...accumulator, [`#field${index}`]: k }), {}),
-    ExpressionAttributeValues: marshall(itemKeys.reduce((accumulator, k, index) => ({ ...accumulator, [`:value${index}`]: item[k] }), {})),
-  }));
-
-  return unmarshall(Attributes);
-};
-  //   const reservation = reservationInfo(userID, restaurantID, reserveTime, partySize);
-  
-  //   const params = {
-  //     TableName: process.env.CANDIDATE_EMAIL_TABLE,
-  //     Key: {
-  //       "email": userID,
-  //     },
-  //     UpdateExpression: 'SET reservation = :r',
-  //     ExpressionAttributeValues: {
-  //       ':r': reservation,
-  //     },
-  //   };
-  
-  //   await dynamoDb.update(params).promise();
-  // }
-  
-    
-    const submitReservation = reservation => {
+    const submitReservation = async reservation => {
       console.log('Submitting reservation ', reservation);
       const reservationInfo = {
         TableName: process.env.RESERVATION_TABLE,
         Item: reservation,
       };
-      return dynamoDb.put(reservationInfo).promise()
-        .then(res => reservation);
+      return  dynamoDb.put(reservationInfo).promise()
+        .then(res => {
+          console.log("completed put ");
+          reservation
+          }).catch(err => {
+      console.log(err);
+      });
     };
   
     const reservationInfo = (userID, restaurantID, reserveTime, partySize) => {
@@ -271,7 +329,7 @@ module.exports.delete = async (event, context) => {
   };
   try{
     await dynamoDb.delete({
-      TableName: process.env.CANDIDATE_TABLE,
+      TableName: process.env.RESTAURANTS_TABLE,
       Key: {
         id: event.pathParameters.id
       }
@@ -291,4 +349,3 @@ module.exports.delete = async (event, context) => {
     headers
   };
   };
-  
