@@ -78,7 +78,7 @@ function SignupPage() {
                   onSubmit={onSignupClicked}
                 >
                   <Form.Group className="mt-2" controlId="formBasicName">
-                    <Form.Label className="form-label">Full name</Form.Label>
+                    <Form.Label className="form-label">name</Form.Label>
                     <Form.Control
                       type="text"
                       placeholder="Enter full name"
