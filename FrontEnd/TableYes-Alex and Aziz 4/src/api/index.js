@@ -3,7 +3,7 @@ import axios from "axios";
 const URL =
   "https://travel-advisor.p.rapidapi.com/restaurants/list-in-boundary";
 const backendUrl =
-  "https://rrz0qonpwi.execute-api.us-east-1.amazonaws.com/dev/api";
+  "https://tjcc5pqmel.execute-api.us-east-1.amazonaws.com/dev/api";
 
 export const getPlacesData = async (sw, ne) => {
   try {

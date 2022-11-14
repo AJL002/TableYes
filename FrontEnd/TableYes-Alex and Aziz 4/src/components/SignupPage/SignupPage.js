@@ -36,10 +36,10 @@ function SignupPage() {
     const signupUser = async () => {
       try {
         await signup({
-          name: fullnameRef.current.value,
           email: emailRef.current.value,
           password: passwordRef.current.value,
           role,
+          name: fullnameRef.current.value,
           lat: coordinates.lat,
           long: coordinates.lng,
         });
