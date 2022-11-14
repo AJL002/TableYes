@@ -50,6 +50,11 @@ const List = ({ places, childClicked, isLoading }) => {
                         />
                     </Grid>
                 ))}
+                <PlaceDetails 
+                    place='test'
+                    selected={Number(childClicked) === 1}
+                    refProp={1}
+                />
             </Grid>
             </>
             )}

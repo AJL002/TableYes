@@ -26,9 +26,9 @@ export const ReserveForm = ({place}) => {
         axios.post("https://rrz0qonpwi.execute-api.us-east-1.amazonaws.com/dev/reservations", 
         {
             userID: localStorage.getItem("token"), // token
-            restaurantID: place.name, // string
+            restaurantID: place.location_id, // string
             time: time, // string
-            partySize: size, 
+            partySize: size, // int
         })
         .then((response) => console.log(response))
         .catch((err) => console.log(err));
@@ -61,7 +61,7 @@ export const ReserveForm = ({place}) => {
                 ariadescribedby='dialog-description'
             >
                 <Form>
-                    <DialogTitle className={classes.DialogTitle}>{place.name} | {place.address}</DialogTitle>
+                    <DialogTitle className={classes.DialogTitle}>{place.name || 'Test'} | {place.address || '1234 Street'}</DialogTitle>
                     <CardMedia
                         style={{ height: 300 }}
                         image={'https://www.foodserviceandhospitality.com/wp-content/uploads/2016/09/Restaurant-Placeholder-001.jpg'}
@@ -128,7 +128,7 @@ export const ReserveForm = ({place}) => {
                         <DialogContent>
                             <DialogContentText id='dialog-description'>Please arrive at least 10 minutes before your reserved time.</DialogContentText>
                         </DialogContent>
-                    <p>{localStorage.getItem("token")} and {size} and {time} and {place.name}</p>
+                    <p>{localStorage.getItem("token")} and {size} and {time} and {place.name} and key: {place.location_id}</p>
                     <DialogActions>
                         <Button onClick={() => setOpen(false)}>Cancel</Button>
                         <Button variant='outlined' onClick={() => setOpen(false)}>Submit</Button>

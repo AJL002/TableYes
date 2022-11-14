@@ -30,6 +30,20 @@ const Map = ({setCoordinates, setBounds, coordinates, places, setChildClicked}) 
                 }}
                 onChildClick={(child) => setChildClicked(child)}
             >
+                <Marker
+                    id = {0}
+                    lat={29.035623638879386}
+                    lng={-81.30318668706671}
+                    name="Test Restaurant"
+                    color="blue"
+                />
+                <Marker
+                    id = {1}
+                    lat={29.03545781486162}
+                    lng={-81.30221183048803}
+                    name="Test Restaurant 2"
+                    color="blue"
+                />
                 {places?.map((place, i) => (
                     <div   
                         className={classes.markerContainer}
@@ -53,10 +67,33 @@ const Map = ({setCoordinates, setBounds, coordinates, places, setChildClicked}) 
                                     <Rating size="small" value={Number(place.rating)} readOnly />
                                 </Paper>)
                         }
-                    </div>
-                ))
 
-                }
+                        
+                    </div>
+                ))}
+
+                    <div   
+                        className={classes.markerContainer}
+                        lat={29.03545781486162}
+                        lng={-81.30221183048803}
+                        key={0}
+                    >
+                        {
+                            !isDesktop ? (
+                                <LocationOnOutlinedIcon color ="primary" fontSize="large"/>
+                            ) : (
+                                <Paper elevation={3} className={classes.paper}>
+                                    <Typography className={classes.typography} variant="subtitle2" gutterBottom>
+                                        Test Restaurant
+                                    </Typography>
+                                    <img 
+                                        className={classes.pointer}
+                                        src={'https://www.foodserviceandhospitality.com/wp-content/uploads/2016/09/Restaurant-Placeholder-001.jpg'}
+                                        alt='Test Restaurant'
+                                    />
+                                </Paper>)
+                        }
+                    </div>
 
             </GoogleMapReact>
         </div>
