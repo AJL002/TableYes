@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Form, Button, Row, Spinner, Col } from "react-bootstrap";
 import { signup, login } from "../../api/index.js";
 
@@ -6,10 +6,20 @@ function SignupPage() {
   const [validated, setValidated] = useState(false);
   const [loading, setLoading] = useState(false);
   const [role, setRole] = useState("customer");
+  const [coordinates, setCoordinates] = useState({ lat: 0, lng: 0 });
 
+  const fullnameRef = useRef();
   const emailRef = useRef();
   const passwordRef = useRef();
   const confirmPasswordRef = useRef();
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      ({ coords: { latitude, longitude } }) => {
+        setCoordinates({ lat: latitude, lng: longitude });
+      }
+    );
+  }, []);
 
   const onSignupClicked = (event) => {
     const form = event.currentTarget;
@@ -29,6 +39,9 @@ function SignupPage() {
           email: emailRef.current.value,
           password: passwordRef.current.value,
           role,
+          name: fullnameRef.current.value,
+          lat: coordinates.lat,
+          long: coordinates.lng,
         });
 
         const { data } = await login({
@@ -39,7 +52,8 @@ function SignupPage() {
         setLoading(false);
 
         // Save data
-        localStorage.setItem("token", data.token);
+        localStorage.setItem("idToken", data.idToken);
+        localStorage.setItem("accessToken", data.accessToken);
         window.location.href = "/";
       } catch (error) {
         alert(`Error signing up: ${error.response.data.message}`);
@@ -63,6 +77,15 @@ function SignupPage() {
                   validated={validated}
                   onSubmit={onSignupClicked}
                 >
+                  <Form.Group className="mt-2" controlId="formBasicName">
+                    <Form.Label className="form-label">name</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="Enter full name"
+                      ref={fullnameRef}
+                      required
+                    />
+                  </Form.Group>
                   <Form.Group className="mt-2" controlId="formBasicEmail">
                     <Form.Label className="form-label">
                       Email address

@@ -32,7 +32,8 @@ function LoginPage() {
         setLoading(false);
 
         // Save data
-        localStorage.setItem("token", data.token);
+        localStorage.setItem("idToken", data.idToken);
+        localStorage.setItem("accessToken", data.accessToken);
         window.location.href = "/";
       } catch (error) {
         alert(`Error login in: ${error.response.data.message}`);

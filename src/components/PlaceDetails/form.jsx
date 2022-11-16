@@ -22,34 +22,33 @@ export const ReserveForm = ({place}) => {
     const [open, setOpen] = useState(false);
 
     // store and pass token
-    const handleSubmit = (e) => {
-        axios.post("https://tjcc5pqmel.execute-api.us-east-1.amazonaws.com/dev/reservations", 
+    const handleSubmit = async (e) => {
+        setOpen(false)
+        return axios.post("https://tjcc5pqmel.execute-api.us-east-1.amazonaws.com/dev/reservations", 
         {
+            userID: localStorage.getItem("idToken"), // token
             restaurantID: place.location_id, // string
-            reserveTime: time, // string
+            time: time, // string
             partySize: size, // int
-            accessToken: localStorage.getItem("token"), // token
-        },
-        {headers: {
-            Authorization: "Access-Control-Allow-Origin"
-          }})
+        })
         .then((response) => console.log(response))
         .catch((err) => console.log(err));
-        setOpen(false)
     }
 
-    const restaurantSubmit = (e) => {
-        axios.post("https://tjcc5pqmel.execute-api.us-east-1.amazonaws.com/dev/restaurants", 
+    const restaurantSubmit = async (e) => {
+        return axios.post("https://tjcc5pqmel.execute-api.us-east-1.amazonaws.com/dev/restaurants", 
         {
-            fullname: place.name, // string
-            ownerID: place.location_id, // string
-            email: "owner@email.com", 
-            lat: place.latitude, // float
-            long: place.longitude, // float
-        },
-        {headers: {
-            Authorization: localStorage.getItem("token")
-          }})
+            email: "test3@simulator.amazonses.com", // string
+            id: place.location_id, // location
+            fullname: place.name, // restaurant name
+            accessToken: localStorage.getItem('accessToken')
+        }, 
+        {
+            headers: {
+                "Authorization": `${localStorage.getItem('idToken')}`,
+                "Access-Control-Allow-Origin": '*'
+            }
+        })
         .then((response) => console.log(response))
         .catch((err) => console.log(err));
     }
@@ -75,7 +74,7 @@ export const ReserveForm = ({place}) => {
                         title={place.name}
                     />
                     <DialogTitle className={classes.DialogTitle}>Reservation Details</DialogTitle>
-                        {/* <TextField // Name
+                        <TextField // Name
                             className={classes.TextField} 
                             required
                             id="outlined-required" 
@@ -83,7 +82,7 @@ export const ReserveForm = ({place}) => {
                             label="Full Name"
                             value={name}
                             onChange = {(e) => setName(e.target.value)}
-                        />  */}
+                        /> 
                     <DialogTitle className={classes.DialogTitle}>Party Size</DialogTitle>
                         <Select // Size
                             className = {classes.Select}
@@ -135,10 +134,10 @@ export const ReserveForm = ({place}) => {
                         <DialogContent>
                             <DialogContentText id='dialog-description'>Please arrive at least 10 minutes before your reserved time.</DialogContentText>
                         </DialogContent>
-                    <p>{localStorage.getItem("token")} and {size} and {time} and {place.name} and key: {place.location_id}</p>
+                    <p>{localStorage.getItem("accessToken")} and {size} and {time} and {place.name} and key: {place.location_id}</p>
                     <DialogActions>
-                        <Button onClick={() => setOpen(false)}>Exit</Button>
-                        <Button variant='outlined' onClick={handleSubmit}>Submit</Button>
+                        <Button onClick={() => setOpen(false)}>Cancel</Button>
+                        <Button variant='outlined' onClick={() => setOpen(false)}>Submit</Button>
                         <Button onClick={restaurantSubmit}>Test</Button>
                     </DialogActions>
                 </Form>

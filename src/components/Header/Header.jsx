@@ -51,8 +51,8 @@ const Header = ({ setCoordinates }) => {
                         </div>
                     </Autocomplete>
                 </Box>
-                {/* <Button onClick={handleSubmit}>R-Submit</Button>
-                <ReserveForm/> */}
+                <Button onClick={handleSubmit}>R-Submit</Button>
+                <ReserveForm/>
             </Toolbar>
         </AppBar>
     );

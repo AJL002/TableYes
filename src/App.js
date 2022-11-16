@@ -9,17 +9,18 @@ import SignupPage from "./components/SignupPage/SignupPage";
 //<Route exact path="/" component={token ? HomePage : LoginPage} />
 
 const App = () => {
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("idToken");
 
   return (
     <BrowserRouter>
       <Switch>
-        <Route exact path="/" component={HomePage} />
+      <Route exact path="/" component={token ? HomePage : LoginPage} />
         <Route path="/signup" component={SignupPage} />
         <Route
           path="/logout"
           component={() => {
-            localStorage.removeItem("token");
+            localStorage.removeItem("idToken");
+            localStorage.removeItem("accessToken");
             window.location.href = "/";
           }}
         />
