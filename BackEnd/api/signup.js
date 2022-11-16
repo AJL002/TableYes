@@ -11,6 +11,7 @@ exports.handler = async(event, context, callback) => {
   if (!isValid)
   return sendResponse(400, { message: 'Invalid input' });
   
+  //declaring variables: name,email, password. which are parsed from req body 
   const {
       name,
       email,
@@ -20,6 +21,7 @@ exports.handler = async(event, context, callback) => {
       user_pool_id
       } = process.env
      
+    //params for user in the userpool 
      const params = {
        UserPoolId: user_pool_id,
        Username: email,

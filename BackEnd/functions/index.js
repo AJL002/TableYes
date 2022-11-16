@@ -17,6 +17,7 @@ const sendResponse = (statusCode, body) => {
     return response
 }
 
+//password restrictions logic, pass must be > 6 characters 
 const validateInput = (data) => {
     const body = JSON.parse(data);
     const { email, password } = body
@@ -26,7 +27,7 @@ const validateInput = (data) => {
 }
 
 
-
+//decodes access token to reveal users id (sub)
 function getUserID (token) {
     const decodedToken = jwt.decode(token, {
         complete: true

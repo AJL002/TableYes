@@ -11,6 +11,8 @@ const { getRestaurant, submitRestaurantDB } = require('./restaurant');
 AWS.config.setPromisesDependency(require('bluebird'));
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
+//var getUser for local invoke, module.export for global invoke
+//function to get user from database with id 
 var getUser = module.exports.getUserDB = async id => {
    const params = {
     TableName: process.env.USER_TABLE,
@@ -42,14 +44,16 @@ var getUser = module.exports.getUserDB = async id => {
   };
   
 
-//module.exports is for global invoke
+//var putUser is for local invoke, module.exports is for global invoke
 var putUser = module.exports.submitUserDB = user => {
+
   //for adding a user to database
     console.log('Submitting user ', user);
     const userInfo = {
       TableName: process.env.USER_TABLE,
       Item: user,
     };
+
     //put user with (userinfo) into database
     return dynamoDb.put(userInfo).promise()
       .then(res => user);
@@ -67,13 +71,14 @@ var putUser = module.exports.submitUserDB = user => {
     };
   };
 
+//func to submit reservation to resturant as specific user 
   module.exports.submitReservation = async (event, context, callback) => {
     const requestBody = JSON.parse(event.body);
     const restaurantID = requestBody.restaurantID;
     const reserveTime = requestBody.reserveTime;
     const partySize = requestBody.partySize;
     const token = requestBody.token;
-    const userID =  getUserID(token);
+    const userID = getUserID(token);
     
     
    // get user
@@ -82,7 +87,7 @@ var putUser = module.exports.submitUserDB = user => {
    var user = await getUser(userID);
    console.log("user ",user);
 
-  //create reservations field in user
+  //create reservations field in user, if no field create new 
    const reservation = reservationInfo(userID, restaurantID, reserveTime, partySize);
    var reservations = new Array();
    if ( typeof user.reservations != "undefined") {
@@ -90,6 +95,7 @@ var putUser = module.exports.submitUserDB = user => {
      reservations = user.reservations;
    }
    console.log("reservations:", reservations);
+
     //push reservation obj to user 
    console.log("adding reservation ", reservation);
    reservations.push(reservation);
@@ -107,11 +113,14 @@ var putUser = module.exports.submitUserDB = user => {
      console.log("reservations empty in restaurant");
      restaurant.reservations = new Array();
    }
+
   //add reservation obj to restaurant
   restaurant.reservations.push(reservation);
-  //update restaurant
+
+  //update restaurant as well 
   await submitRestaurantDB(restaurant);
-  
+
+  //actually submit reservation or catch error
    await submitReservation(reservation)
     .then(res => {
       console.log("Inside then");
@@ -119,6 +128,9 @@ var putUser = module.exports.submitUserDB = user => {
         statusCode: 200,
         body: JSON.stringify({
           message: `Sucessfully submitted reservation`,
+          reservationID: res.id,
+          restuarantID: restaurantID,
+          userID: userID,
         })
       });
     })
@@ -134,6 +146,7 @@ var putUser = module.exports.submitUserDB = user => {
       
   };
 
+//func that puts reservation into database 
     const submitReservation = async reservation => {
       console.log('Submitting reservation ', reservation);
       const reservationInfo = {
@@ -148,7 +161,8 @@ var putUser = module.exports.submitUserDB = user => {
       console.log(err);
       });
     };
-  
+
+  //func to create reservation object, with defined parameters for database
     const reservationInfo = (userID, restaurantID, reserveTime, partySize) => {
       const timestamp = new Date().getTime();
       return {
