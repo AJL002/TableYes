@@ -5,7 +5,7 @@
 const uuid = require('uuid');
 const AWS = require('aws-sdk'); 
 const { getUserID } = require('../functions/index');
-const { getRestaurant, submitRestaurant } = require('./restaurant');
+const { getRestaurant, submitRestaurantDB } = require('./restaurant');
 
 
 AWS.config.setPromisesDependency(require('bluebird'));
@@ -110,7 +110,7 @@ var putUser = module.exports.submitUserDB = user => {
   //add reservation obj to restaurant
   restaurant.reservations.push(reservation);
   //update restaurant
-  await submitRestaurant(restaurant);
+  await submitRestaurantDB(restaurant);
   
    await submitReservation(reservation)
     .then(res => {

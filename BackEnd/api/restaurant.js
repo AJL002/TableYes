@@ -72,7 +72,7 @@ module.exports.submitRestaurant = async (event, context, callback) => {
     });
 };
 
-const submitRestaurant = async restaurant => {
+const submitRestaurant = module.exports.submitRestaurantDB= async restaurant => {
   console.log('Submitting restaurant');
   const restaurantInfo = {
     TableName: process.env.RESTAURANTS_TABLE,
