@@ -1,9 +1,11 @@
 import React, {useState} from 'react';
 import { Autocomplete } from '@react-google-maps/api';
-import { AppBar, Toolbar, Typography, InputBase, Box, Button } from '@material-ui/core';
+import { AppBar, Toolbar, Typography, InputBase, Box, Button, Avatar } from '@material-ui/core';
+import Assignment from '@material-ui/icons/Assignment'
 import SearchIcon from '@material-ui/icons/Search';
 import useStyles from './styles';
 import { ReserveForm } from '././form.jsx'
+import { ProfilePage } from './Merchant/profile.jsx'
 import axios from 'axios'
 
 // Restaurant Submit
@@ -51,8 +53,9 @@ const Header = ({ setCoordinates }) => {
                         </div>
                     </Autocomplete>
                 </Box>
-                <Button onClick={handleSubmit}>R-Submit</Button>
-                <ReserveForm/>
+                <ProfilePage />
+                {/* <Button onClick={handleSubmit}>R-Submit</Button>
+                <ReserveForm/> */}
             </Toolbar>
         </AppBar>
     );
