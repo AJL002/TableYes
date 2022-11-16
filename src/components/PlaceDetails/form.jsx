@@ -5,6 +5,7 @@ import {Form} from 'react-bootstrap'
 import axios from 'axios'
 import { useState } from 'react'
 import useStyles from './styles-form';
+import { restaurant } from "../../api/index.js"
 
 
 
@@ -22,36 +23,55 @@ export const ReserveForm = ({place}) => {
     const [open, setOpen] = useState(false);
 
     // store and pass token
-    const handleSubmit = async (e) => {
+    const handleSubmit = async () => {
         setOpen(false)
-        return axios.post("https://tjcc5pqmel.execute-api.us-east-1.amazonaws.com/dev/reservations", 
+        axios.post("https://tjcc5pqmel.execute-api.us-east-1.amazonaws.com/dev/reservations", 
         {
-            userID: localStorage.getItem("idToken"), // token
+            token: localStorage.getItem("accessToken"), // token
             restaurantID: place.location_id, // string
             time: time, // string
             partySize: size, // int
-        })
-        .then((response) => console.log(response))
-        .catch((err) => console.log(err));
-    }
-
-    const restaurantSubmit = async (e) => {
-        return axios.post("https://tjcc5pqmel.execute-api.us-east-1.amazonaws.com/dev/restaurants", 
-        {
-            email: "test3@simulator.amazonses.com", // string
-            id: place.location_id, // location
-            fullname: place.name, // restaurant name
-            accessToken: localStorage.getItem('accessToken')
-        }, 
+        },
         {
             headers: {
-                "Authorization": `${localStorage.getItem('idToken')}`,
-                "Access-Control-Allow-Origin": '*'
+                "Authorization": `${localStorage.getItem('idToken')}`
             }
         })
         .then((response) => console.log(response))
         .catch((err) => console.log(err));
     }
+
+    const restaurantSubmit = async () => {
+        axios.post("https://tjcc5pqmel.execute-api.us-east-1.amazonaws.com/dev/restaurants", 
+        {
+            "fullname" : place.name,
+            "email" : "testz@simulator.amazonses.com", // string
+            "lat" : place.latitude, 
+            "long" : place.longitude,
+            "token" : localStorage.getItem('accessToken')
+        }, 
+        {
+            headers: {
+                "Authorization": `${localStorage.getItem('idToken')}`
+            }
+        })
+        .then((response) => console.log(response))
+        .catch((err) => console.log(err));
+    }
+
+    const restaurantGo = async () => {
+        try {
+            await restaurant({
+                "fullname" : place.name,
+                "email" : "testing@simulator.amazonses.com", // string
+                "lat" : place.latitude, 
+                "long" : place.longitude,
+                "token" : localStorage.getItem('accessToken')
+            });
+        } catch (error) {
+            console.log(error);
+          }
+    };
     
     const handleChange = (e) => {
         setSize(e.target.value);
@@ -134,11 +154,11 @@ export const ReserveForm = ({place}) => {
                         <DialogContent>
                             <DialogContentText id='dialog-description'>Please arrive at least 10 minutes before your reserved time.</DialogContentText>
                         </DialogContent>
-                    <p>{localStorage.getItem("accessToken")} and {size} and {time} and {place.name} and key: {place.location_id}</p>
+                    <p>{localStorage.getItem("accessToken")} and {place.name} and {place.latitude} and {place.longitude} and key: {place.location_id}</p>
                     <DialogActions>
                         <Button onClick={() => setOpen(false)}>Cancel</Button>
-                        <Button variant='outlined' onClick={() => setOpen(false)}>Submit</Button>
-                        <Button onClick={restaurantSubmit}>Test</Button>
+                        <Button variant='outlined' onClick={handleSubmit}>Submit</Button>
+                        <Button onClick={restaurantGo}>Test</Button>
                     </DialogActions>
                 </Form>
             </Dialog>
