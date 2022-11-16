@@ -6,21 +6,14 @@ function SignupPage() {
   const [validated, setValidated] = useState(false);
   const [loading, setLoading] = useState(false);
   const [role, setRole] = useState("customer");
-  const [coordinates, setCoordinates] = useState({ lat: 0, lng: 0 });
+  
 
   const fullnameRef = useRef();
   const emailRef = useRef();
   const passwordRef = useRef();
   const confirmPasswordRef = useRef();
 
-  useEffect(() => {
-    navigator.geolocation.getCurrentPosition(
-      ({ coords: { latitude, longitude } }) => {
-        setCoordinates({ lat: latitude, lng: longitude });
-      }
-    );
-  }, []);
-
+  
   const onSignupClicked = (event) => {
     const form = event.currentTarget;
     event.preventDefault();
@@ -40,8 +33,7 @@ function SignupPage() {
           password: passwordRef.current.value,
           role,
           name: fullnameRef.current.value,
-          lat: coordinates.lat,
-          long: coordinates.lng,
+          
         });
 
         const { data } = await login({
@@ -78,7 +70,7 @@ function SignupPage() {
                   onSubmit={onSignupClicked}
                 >
                   <Form.Group className="mt-2" controlId="formBasicName">
-                    <Form.Label className="form-label">name</Form.Label>
+                    <Form.Label className="form-label">full name</Form.Label>
                     <Form.Control
                       type="text"
                       placeholder="Enter full name"
