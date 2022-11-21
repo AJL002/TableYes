@@ -10,8 +10,10 @@ const sendResponse = (statusCode, body) => {
         body: JSON.stringify(body),
         headers: {
             'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': 'http://localhost:3000',
-            'Access-Control-Allow-Credentials': true
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': true ,
+            'Access-Control-Allow-Methods': 'OPTIONS,GET,POST,DELETE,PUT',
+            'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'
         }
     }
     return response
