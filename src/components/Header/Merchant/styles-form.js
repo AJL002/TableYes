@@ -2,7 +2,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 export default makeStyles(() => ({
   TextField: {
-    marginLeft: '25px', width: '88%'
+    marginLeft: '25px', width: '20%', marginRight: '10px'
   },
   DialogTitle: {
     marginBottom: '-20px'
@@ -16,5 +16,8 @@ export default makeStyles(() => ({
   pointer: {
     cursor: 'pointer',
   },
+  button: {
+    width: '50%', 
+  }
 
 }));

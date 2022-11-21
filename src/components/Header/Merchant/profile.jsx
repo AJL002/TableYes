@@ -1,10 +1,12 @@
 import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, Avatar } from '@material-ui/core'
 import Assignment from '@material-ui/icons/Assignment'
 import { useState } from 'react'
+import useStyles from '././styles-form.js';
 
 export const ProfilePage = () => {
 
     const [open, setOpen] = useState(false)
+    const classes = useStyles();
 
     return(
         <div>
@@ -14,18 +16,22 @@ export const ProfilePage = () => {
                 onClose={() => setOpen(false)} 
                 aria-labelledby='dialog-title' 
                 ariadescribedby='dialog-description'
+                autoWidth
             >
+                    {/* <DialogActions>
+                            <Button className = {classes.button} onClick={() => setOpen(false)} autoFocus>X</Button>
+                    </DialogActions> */}
+                    <DialogTitle className = {classes.DialogTitle} id='dialog-title'>Your Restaurants</DialogTitle>
+                        <DialogContent>
+                            <Button>Bob's Burgers - Daytona Beach</Button>
+                            <Button>Bob's Burgers - DeLand</Button>
+                        </DialogContent>
+                        
                     <DialogActions>
-                            <Button onClick={() => setOpen(false)} autoFocus>X</Button>
+                        <TextField className = {classes.TextField}/>
+                        <Button>Enter</Button>
                     </DialogActions>
-                    <DialogTitle id='dialog-title'>Merchant Details</DialogTitle>
-                        <DialogContent>
-                            <DialogContentText id='dialog-description'>Bob's Burgers</DialogContentText>
-                        </DialogContent>
-                    <DialogTitle id='dialog-title'>Active Reservations</DialogTitle>
-                        <DialogContent>
-                                <DialogContentText id='dialog-description'>Janice at 18:00, party of 4</DialogContentText>
-                        </DialogContent>
+                        
                 </Dialog>
         </div>
 

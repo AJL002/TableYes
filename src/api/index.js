@@ -1,5 +1,11 @@
 import axios from "axios";
 
+// var app = express();
+
+// // ADD THIS
+// var cors = require('cors');
+// app.use(cors());
+
 const URL =
   "https://travel-advisor.p.rapidapi.com/restaurants/list-in-boundary";
 const backendUrl =

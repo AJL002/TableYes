@@ -22,22 +22,43 @@ export const ReserveForm = ({place}) => {
     
     const [open, setOpen] = useState(false);
 
+    
+
     // store and pass token
     const handleSubmit = async () => {
         //setOpen(false)
         axios.post("https://tjcc5pqmel.execute-api.us-east-1.amazonaws.com/dev/reservations", 
-        {
+        JSON.stringify({
             token: 'eyJraWQiOiJwYVVSeVN0WUk3V1BJdWhCc1JjZUdnZ0NcLzdQY0dVUEdCOEFKYlVYa3NqST0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2NmI4MmE2OC0zNDY2LTRjNzctOWVmNS03YzRiNjNkNzdkZDciLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb21cL3VzLWVhc3QtMV95SnRjckdBQ0YiLCJjbGllbnRfaWQiOiI1ajRxbjNoY3RiNDY2ZGM2dm81bHY4OWs0ZiIsIm9yaWdpbl9qdGkiOiI4NDU2NmExMC05OGY3LTQ3ZWYtOGVkZi1mNjNlYTcwOTIyZWEiLCJldmVudF9pZCI6IjUyMTQxMTkwLTU1NDktNDliZS04ZmVmLWIyNjFkMWQ4YjZkZiIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiYXdzLmNvZ25pdG8uc2lnbmluLnVzZXIuYWRtaW4iLCJhdXRoX3RpbWUiOjE2Njg2MjkwODEsImV4cCI6MTY2ODY0NzA4MSwiaWF0IjoxNjY4NjI5MDgxLCJqdGkiOiIyOTY0ZDQ1ZC00YzY3LTQxMWYtYjM3My0wYWM5NWEyNGYzODkiLCJ1c2VybmFtZSI6InN1Y2Nlc3MrMUBzaW11bGF0b3IuYW1hem9uc2VzLmNvbSJ9.LF7ZUagJyEtKoczVU1nElUwEgTCFDiprt3Z8uYX-zFX2uURo3J7cx4R0Lk9gpw-b5jzv5adYktL5ID6iJgKJDKq7EWlm7u2P2-mFSQg1IoyYVolumlAblXpWCWophPTujyqGPAKz6vFBKni_LI86iOEMYPLiA-TOiCAFOZDT6OuqfHl0Oj3L2fyxIjvvP61Bbe1yp1jyPflipmsMHz4YwxBiW-d0l-nSdm_B8ouvZmwOfa6VRHr3K9yYnW39KU7fN17W5zNFqvwfwcDN0m0RcZW2oYFJOZm_Os9uX2rmkUSPLQlODjNjgdjnwVoEFwAAABaSLJL63DQ4em9-VM4YZw', // token
             restaurantID: 'e043fae0-651a-11ed-833e-4d1a621d7aaf', // string
             reserveTime: time, // string
             partySize: size, // int
-        },
+        }),
         {
             headers: {
-                "access-control-allow-origin": '*',
+                "access-control-allow-origin": "*",
                 //"Access-Control-Allow-Headers": "Accept",
                 //"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE,OPTIONS",
                 "Authorization": 'eyJraWQiOiJuT3NYQ1pSRTFLS3pDRjNSUEZXMXkwYVFcL0J5MUtaSVNqWkxWdUYxSlpwWT0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2NmI4MmE2OC0zNDY2LTRjNzctOWVmNS03YzRiNjNkNzdkZDciLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tXC91cy1lYXN0LTFfeUp0Y3JHQUNGIiwiY29nbml0bzp1c2VybmFtZSI6InN1Y2Nlc3MrMUBzaW11bGF0b3IuYW1hem9uc2VzLmNvbSIsIm9yaWdpbl9qdGkiOiJhMzRhY2RkZS02MThhLTRmZjctOWU5ZS01MWI0YzdiODQ4YWUiLCJhdWQiOiI1ajRxbjNoY3RiNDY2ZGM2dm81bHY4OWs0ZiIsImV2ZW50X2lkIjoiYjdjODgzMDMtM2I1Yy00ZDZhLWFkNTYtZGE4MzczMzVmNTI4IiwidG9rZW5fdXNlIjoiaWQiLCJhdXRoX3RpbWUiOjE2Njg2MTIzMjIsImV4cCI6MTY2ODYzMDMyMiwiaWF0IjoxNjY4NjEyMzIyLCJqdGkiOiIxODIzMzA4ZC03ZjBlLTQxNTUtYjc5ZS01ZmQ3ZDg1N2ZmNzciLCJlbWFpbCI6InN1Y2Nlc3MrMUBzaW11bGF0b3IuYW1hem9uc2VzLmNvbSJ9.jQ3t1mMu73JU-asJXhHJyUMiiKBfqEqpnEGm2B-caci0ey9VxbdUJQTQdfd5LdgppB-VXU63CJV6frb-KyURMH9DMg1rOE5qZ9lKiCDhmCZlgT587qmSGikJfzrOLeMqKUIOg_niJW4OyWZcHEpOlm33Il7zk55eOSzykLXsVp-wvKDi__ebW6sVKH4rAOZME9v7i-rAIbevwH-94039shNpTP_UiEWlaoCjQiFQmUW6fiXxpR3AvxRyAVDpSXAKUX6Gprhhq8neoT8lIkZii8j3FCZj2ZHlghtBiX6ai5se8tZeapja58CkPYB7Q5loN7i2RGlXUIS96O9OtJ9kpA'
+                //idToken ^^
+            }
+        })
+        .then((response) => console.log(response))
+        .catch((err) => console.log(err));
+    }
+
+    const testSubmit = async () => {
+        //setOpen(false)
+        axios.post("https://tjcc5pqmel.execute-api.us-east-1.amazonaws.com/dev/api/private", 
+        JSON.stringify({
+            
+        }),
+        {
+            headers: {
+                //"access-control-allow-origin": "*",
+                //"Access-Control-Allow-Headers": "Accept",
+                //"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE,OPTIONS",
+                "Authorization": localStorage.getItem('idToken')
                 //idToken ^^
             }
         })
@@ -166,7 +187,7 @@ export const ReserveForm = ({place}) => {
                     <DialogActions>
                         <Button onClick={() => setOpen(false)}>Cancel</Button>
                         <Button variant='outlined' onClick={handleSubmit}>Submit</Button>
-                        <Button onClick={restaurantSubmit}>Test</Button>
+                        <Button onClick={testSubmit}>Test</Button>
                     </DialogActions>
                 </Form>
             </Dialog>
