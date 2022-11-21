@@ -3,7 +3,11 @@ const uuid = require('uuid');
 const AWS = require('aws-sdk'); 
 const { getUserID } = require('../functions/index');
 const { submitUserDB, getUserDB } = require('./user');
-
+const headers = {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': 'http://localhost:3000',
+            'Access-Control-Allow-Credentials': true
+        }
 
 
 AWS.config.setPromisesDependency(require('bluebird'));
@@ -68,7 +72,8 @@ module.exports.submitRestaurant = async (event, context, callback) => {
           message: `Sucessfully submitted restaurant with email ${email}`,
           restaurantId: res.id,
           ownerID: res.ownerID,
-        })
+        }),
+        headers: headers
       });
     })
     .catch(err => {
@@ -77,7 +82,8 @@ module.exports.submitRestaurant = async (event, context, callback) => {
         statusCode: 500,
         body: JSON.stringify({
           message: `Unable to submit restaurant with email ${email}`,
-        })
+        }),
+        headers: headers
       })
     });
 };
@@ -131,7 +137,8 @@ module.exports.listRestaurants = (event, context, callback) => {
                 statusCode: 200,
                 body: JSON.stringify({
                     restaurants: data.Items
-                })
+                }),
+                headers: headers
             });
         }
   
@@ -178,6 +185,7 @@ module.exports.getRestaurant = async id => {
         const response = {
           statusCode: 200,
           body: JSON.stringify(result.Item),
+          headers: headers
         };
         callback(null, response);
       })

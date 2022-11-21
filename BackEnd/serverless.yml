@@ -87,6 +87,28 @@ resources:
         StreamSpecification:
           StreamViewType: "NEW_AND_OLD_IMAGES"
         TableName: ${self:provider.environment.RESERVATION_TABLE}
+
+    GatewayResponseDefault4XX:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "method.request.header.Origin"
+          gatewayresponse.header.Access-Control-Allow-Credentials: "'true'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'
+    GatewayResponseDefault5XX:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "method.request.header.Origin"
+          gatewayresponse.header.Access-Control-Allow-Credentials: "'true'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
+        ResponseType: DEFAULT_5XX
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'
+    
     # Cognito - User pool
     CognitoUserPool:
       Type: AWS::Cognito::UserPool
@@ -221,6 +243,7 @@ functions:
       - http:
           path: restaurants
           method: post
+          cors: true
           authorizer:
             name: PrivateAuthorizer
             type: COGNITO_USER_POOLS
@@ -239,6 +262,7 @@ functions:
       - http:
           path: user
           method: post
+          cors: true
 
   reservationSubmission:
     handler: api/user.submitReservation
@@ -248,6 +272,7 @@ functions:
       - http:
           path: reservations
           method: post
+          cors: true
           authorizer:
             name: PrivateAuthorizer
             type: COGNITO_USER_POOLS
@@ -286,6 +311,7 @@ functions:
       - http:
           path: restaurants/{id}
           method: get
+          cors: true
 
   deleteRestaurant:
     handler: api/restaurant.delete
@@ -294,6 +320,7 @@ functions:
       - http:
           path: restaurants/{id}
           method: delete 
+          cors: true
 
   loginUser:
      handler: api/login.handler
@@ -302,6 +329,26 @@ functions:
            path: api/login
            method: post
            cors: true
+
+  getUser:
+     handler: api/user.getUserPar
+     events:
+       - http:
+           path: api/user/{id}
+           method: get
+           cors: true
+           authorizer:
+            name: PrivateAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - UserPool
+                - Arn
+            claims:
+              - email
+              - sub
+
+
 
   signupUser:
      handler: api/signup.handler
@@ -326,4 +373,5 @@ functions:
                 - Arn
             claims:
               - email
+  
 

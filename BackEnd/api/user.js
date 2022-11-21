@@ -6,7 +6,11 @@ const uuid = require('uuid');
 const AWS = require('aws-sdk'); 
 const { getUserID } = require('../functions/index');
 const { getRestaurant, submitRestaurantDB } = require('./restaurant');
-
+const headers = {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': 'http://localhost:3000',
+            'Access-Control-Allow-Credentials': true
+        }
 
 AWS.config.setPromisesDependency(require('bluebird'));
 const dynamoDb = new AWS.DynamoDB.DocumentClient();
@@ -41,6 +45,31 @@ var getUser = module.exports.getUserDB = async id => {
       createdAt: timestamp,
       updatedAt: timestamp,
     };
+  };
+
+ //another get user func but getting id as path param eg: /{id}
+ module.exports.getUserPar = (event, context, callback) => {
+    const params = {
+      TableName: process.env.USER_TABLE,
+      Key: {
+        id: event.pathParameters.id
+      }
+    };
+   
+    dynamoDb.get(params).promise()
+      .then(result => {
+        const response = {
+          statusCode: 200,
+          body: JSON.stringify(result.Item),
+          headers: headers
+        };
+        callback(null, response);
+      })
+      .catch(error => {
+        console.error(error);
+        callback(new Error('Couldn\'t fetch user.'));
+        return;
+      });
   };
   
 
@@ -128,10 +157,11 @@ var putUser = module.exports.submitUserDB = user => {
         statusCode: 200,
         body: JSON.stringify({
           message: `Sucessfully submitted reservation`,
-          reservationID: res.id,
+          reservationID: reservation.id,
           restuarantID: restaurantID,
           userID: userID,
-        })
+        }),
+        headers: headers
       });
     })
     .catch(err => {
@@ -140,7 +170,8 @@ var putUser = module.exports.submitUserDB = user => {
         statusCode: 500,
         body: JSON.stringify({
           message: `Unable to submit reservation `,
-        })
+        }),
+        headers : headers
       });
     });
       
@@ -175,6 +206,3 @@ var putUser = module.exports.submitUserDB = user => {
         updatedAt: timestamp,
       };
     };
-  
-  
-
