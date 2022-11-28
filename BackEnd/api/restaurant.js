@@ -103,7 +103,7 @@ const submitRestaurant = module.exports.submitRestaurantDB= async restaurant => 
 };
 
 //func to create restaurant obj, with define parameters for database 
-const restaurantInfo = (fullname, email, lat, long, ownerID) => {
+const restaurantInfo = (fullname, email, lat, long, ownerID, id) => {
   const timestamp = new Date().getTime();
   return {
     id: uuid.v1(),

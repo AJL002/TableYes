@@ -348,6 +348,23 @@ functions:
               - email
               - sub
 
+  updateReservation:
+     handler: api/user.updateReservation
+     events:
+       - http:
+           path: api/reservation
+           method: PUT
+           cors: true
+           authorizer:
+            name: PrivateAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - UserPool
+                - Arn
+            claims:
+              - email
+              - sub
 
 
   signupUser:

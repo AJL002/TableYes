@@ -208,3 +208,55 @@ var putUser = module.exports.submitUserDB = user => {
         updatedAt: timestamp,
       };
     };
+  
+
+    module.exports.updateReservation = async (event, context) => {
+      const requestBody = JSON.parse(event.body);
+      const reservationID = requestBody.reservationID;
+      const reserveTime = requestBody.reserveTime;
+      let body;
+      let statusCode = 200;
+
+     
+      try{
+        await updateItem(reservationID, reserveTime);
+      body = `succesfully updated`;
+      }
+      catch (err) {
+        statusCode = 400;
+        body = err.message;
+      } finally {
+        body = JSON.stringify(body);
+      }
+      return {
+        statusCode,
+        body,
+        headers
+      };
+      };
+   
+
+
+
+
+
+    function updateItem(reservationID, reserveTime) {
+      const params = {
+          TableName: process.env.RESERVATION_TABLE,
+  // this is your DynamoDB Table 
+          Key: {
+              id: reservationID,
+  //find the id in the table that you pull from the event 
+          },
+          UpdateExpression: "set reserveTime = :reserveTime",
+          // This expression is what updates the item attribute 
+  ExpressionAttributeValues: {
+              ":reserveTime": reserveTime,
+  //create an Expression Attribute Value to pass in the expression above
+          },
+          ReturnValues: "UPDATED_NEW",
+  // Return the newly updated values 
+      };
+      return dynamoDb.update(params).promise();
+  // pass in the params above and fire the actual dynamoDB update method
+  }

@@ -1,48 +1,59 @@
-
-//const AWS = require('aws-jwt-verify');
-var jwt = require('jsonwebtoken');
-var jwkToPem = require('jwk-to-pem');
-
-
-const sendResponse = (statusCode, body) => {
-    const response = {
-        statusCode: statusCode,
-        body: JSON.stringify(body),
-        headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Credentials': true ,
-            'Access-Control-Allow-Methods': 'OPTIONS,GET,POST,DELETE,PUT',
-            'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'
-        }
-    }
-    return response
-}
-
-//password restrictions logic, pass must be > 6 characters 
-const validateInput = (data) => {
-    const body = JSON.parse(data);
-    const { email, password } = body
-    if (!email || !password || password.length < 6)
-        return false
-    return true
-}
-
-
-//decodes access token to reveal users id (sub)
-function getUserID (token) {
-    const decodedToken = jwt.decode(token, {
-        complete: true
-       });
-      
-       if (!decodedToken) {
-           throw new Error('provided token does not decode as JWT');
-       }
-      
-       return decodedToken.payload.sub;
-      };
-   
+exports.handler = async(event, context, callback) => {
+    //  https://github.com/shivangchauhan7/serverless-auth
+    const AWS = require('aws-sdk');
+    const { sendResponse, validateInput } = require("../functions");
+    const { submitUserDB, userInfo } = require('./user');
+  
+    const cognito = new AWS.CognitoIdentityServiceProvider();
     
-module.exports = {
-    sendResponse, validateInput, getUserID
-};
+    //validate request body
+    const isValid = validateInput(event.body);
+    if (!isValid)
+    return sendResponse(400, { message: 'Invalid input' });
+    
+    //declaring variables: name,email, password. which are parsed from req body 
+    const {
+        name,
+        email,
+        password
+        } = JSON.parse(event.body)
+       const {
+        user_pool_id
+        } = process.env
+       
+      //params for user in the userpool 
+       const params = {
+         UserPoolId: user_pool_id,
+         Username: email,
+         UserAttributes: [{
+             Name: 'email',
+             Value: email
+           },
+           {
+             Name: 'email_verified',
+             Value: 'true'
+           }
+         ]
+       }
+       const response = await cognito.adminCreateUser(params).promise();
+       
+       if (response.User) {
+        const paramsForSetPass = {
+          Password: password,
+          UserPoolId: user_pool_id,
+          Username: email,
+          Permanent: true
+        };
+        delete params.UserAttributes;
+        delete params.MessageAction;
+        
+       await cognito.adminSetUserPassword(paramsForSetPass).promise();
+       const res = await cognito.adminGetUser(params).promise();
+       console.log("res ",res);
+       await submitUserDB(userInfo(res.UserAttributes[0].Value, name, email, password))
+       
+      }
+      return sendResponse(200, {
+        message: 'User registration successful'
+      })
+    }
