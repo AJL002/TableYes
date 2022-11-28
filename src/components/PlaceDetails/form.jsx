@@ -36,7 +36,7 @@ export const ReserveForm = ({place}) => {
         }),
         {
             headers: {
-                "access-control-allow-origin": "*",
+                //"access-control-allow-origin": "*",
                 //"Access-Control-Allow-Headers": "Accept",
                 //"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE,OPTIONS",
                 "Authorization": 'eyJraWQiOiJuT3NYQ1pSRTFLS3pDRjNSUEZXMXkwYVFcL0J5MUtaSVNqWkxWdUYxSlpwWT0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI2NmI4MmE2OC0zNDY2LTRjNzctOWVmNS03YzRiNjNkNzdkZDciLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tXC91cy1lYXN0LTFfeUp0Y3JHQUNGIiwiY29nbml0bzp1c2VybmFtZSI6InN1Y2Nlc3MrMUBzaW11bGF0b3IuYW1hem9uc2VzLmNvbSIsIm9yaWdpbl9qdGkiOiJhMzRhY2RkZS02MThhLTRmZjctOWU5ZS01MWI0YzdiODQ4YWUiLCJhdWQiOiI1ajRxbjNoY3RiNDY2ZGM2dm81bHY4OWs0ZiIsImV2ZW50X2lkIjoiYjdjODgzMDMtM2I1Yy00ZDZhLWFkNTYtZGE4MzczMzVmNTI4IiwidG9rZW5fdXNlIjoiaWQiLCJhdXRoX3RpbWUiOjE2Njg2MTIzMjIsImV4cCI6MTY2ODYzMDMyMiwiaWF0IjoxNjY4NjEyMzIyLCJqdGkiOiIxODIzMzA4ZC03ZjBlLTQxNTUtYjc5ZS01ZmQ3ZDg1N2ZmNzciLCJlbWFpbCI6InN1Y2Nlc3MrMUBzaW11bGF0b3IuYW1hem9uc2VzLmNvbSJ9.jQ3t1mMu73JU-asJXhHJyUMiiKBfqEqpnEGm2B-caci0ey9VxbdUJQTQdfd5LdgppB-VXU63CJV6frb-KyURMH9DMg1rOE5qZ9lKiCDhmCZlgT587qmSGikJfzrOLeMqKUIOg_niJW4OyWZcHEpOlm33Il7zk55eOSzykLXsVp-wvKDi__ebW6sVKH4rAOZME9v7i-rAIbevwH-94039shNpTP_UiEWlaoCjQiFQmUW6fiXxpR3AvxRyAVDpSXAKUX6Gprhhq8neoT8lIkZii8j3FCZj2ZHlghtBiX6ai5se8tZeapja58CkPYB7Q5loN7i2RGlXUIS96O9OtJ9kpA'
@@ -123,7 +123,7 @@ export const ReserveForm = ({place}) => {
                         title={place.name}
                     />
                     <DialogTitle className={classes.DialogTitle}>Reservation Details</DialogTitle>
-                        <TextField // Name
+                        {/* <TextField // Name
                             className={classes.TextField} 
                             required
                             id="outlined-required" 
@@ -131,7 +131,7 @@ export const ReserveForm = ({place}) => {
                             label="Full Name"
                             value={name}
                             onChange = {(e) => setName(e.target.value)}
-                        /> 
+                        />  */}
                     <DialogTitle className={classes.DialogTitle}>Party Size</DialogTitle>
                         <Select // Size
                             className = {classes.Select}
@@ -169,7 +169,7 @@ export const ReserveForm = ({place}) => {
                                 }}
                                 autoWidth
                             />
-                        <DialogTitle className={classes.DialogTitle}>Comments</DialogTitle>
+                        {/* <DialogTitle className={classes.DialogTitle}>Comments</DialogTitle>
                         <TextField className={classes.TextField} // Comment field
                             autoFocus
                             margin="dense"
@@ -179,11 +179,11 @@ export const ReserveForm = ({place}) => {
                             variant="standard"
                             value={comment}
                             onChange = {(e) => setComment(e.target.value)}
-                        />  
+                        />   */}
                         <DialogContent>
                             <DialogContentText id='dialog-description'>Please arrive at least 10 minutes before your reserved time.</DialogContentText>
                         </DialogContent>
-                    <p>{localStorage.getItem("accessToken")} and {place.name} and {place.latitude} and {place.longitude} and key: {place.location_id}</p>
+                    {/* <p>{localStorage.getItem("accessToken")} and {place.name} and {place.latitude} and {place.longitude} and key: {place.location_id}</p> */}
                     <DialogActions>
                         <Button onClick={() => setOpen(false)}>Cancel</Button>
                         <Button variant='outlined' onClick={handleSubmit}>Submit</Button>

@@ -1,11 +1,14 @@
 import { makeStyles } from '@material-ui/core/styles';
 
-export default makeStyles(() => ({
+export default makeStyles((theme) => ({
+  Dialog:{
+    height: '500px'
+  },
   TextField: {
-    marginLeft: '25px', width: '20%', marginRight: '10px'
+    marginLeft: '25px', width: '30%', marginRight: '10px', 
   },
   DialogTitle: {
-    marginBottom: '-20px'
+    marginBottom: '-20px',
   },
   Select: {
     marginLeft: '25px', width: '20%'
@@ -18,6 +21,9 @@ export default makeStyles(() => ({
   },
   button: {
     width: '50%', 
+  },
+  reservation: {
+    
   }
 
 }));
