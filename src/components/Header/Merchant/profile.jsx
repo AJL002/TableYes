@@ -1,4 +1,6 @@
-import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, Avatar } from '@material-ui/core'
+import * as React from 'react';
+import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, Avatar,
+Select, MenuItem, Box, FormControl, InputLabel } from '@material-ui/core'
 import axios from 'axios';
 import { useState } from 'react'
 import useStyles from '././styles-form.js';
@@ -32,13 +34,32 @@ export const ProfilePage = () => {
         .catch((err) => console.log(err));
     }
 
-    function assignRestaurant(locationId){
+    const [age, setAge] = React.useState('');
 
-    }
+    const handleChange = (event) => {
+        setAge(event.target.value);
+    };
 
     
     return(
         <div>
+            <Box sx={{ minWidth: 120 }}>
+                <FormControl fullWidth>
+                <InputLabel id="demo-simple-select-label">Merchant</InputLabel>
+                <Select
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={age}
+                    label="Merchant"
+                    onChange={handleChange}
+                >
+                    <MenuItem value={10}>Ten</MenuItem>
+                    <MenuItem value={20}>Twenty</MenuItem>
+                    <MenuItem value={30}>Thirty</MenuItem>
+                </Select>
+                </FormControl>
+            </Box>
+
             <Button onClick={() => setOpen(true)}>Merchant</Button>
              <Dialog 
                 open = {open} 
@@ -58,8 +79,6 @@ export const ProfilePage = () => {
                         </DialogContent>
                         
                     <DialogActions>
-                        <TextField className = {classes.TextField} placeholder = "Location-ID"/>
-                        <Button onClick={handleSubmit}>Enter</Button>
                     </DialogActions>
                         
                 </Dialog>

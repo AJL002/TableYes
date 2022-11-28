@@ -36,7 +36,7 @@ function AddRestaurant(props) {
           lat: coordinates.lat,
           long: coordinates.lng,
           token: localStorage.getItem("accessToken"),
-          locationID: restaurantlocationID.current.value
+          locationID: String(restaurantlocationID.current.value)
         },
         );
 
