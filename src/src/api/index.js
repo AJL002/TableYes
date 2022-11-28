@@ -10,8 +10,7 @@ const URL =
   "https://travel-advisor.p.rapidapi.com/restaurants/list-in-boundary";
 const backendUrl =
   "https://tjcc5pqmel.execute-api.us-east-1.amazonaws.com/dev/api";
-const formUrl =
-  "https://tjcc5pqmel.execute-api.us-east-1.amazonaws.com/dev";
+const formUrl = "https://tjcc5pqmel.execute-api.us-east-1.amazonaws.com/dev";
 
 export const getPlacesData = async (sw, ne) => {
   try {
@@ -51,12 +50,16 @@ export const login = async (data) => {
 };
 
 // Submit Restaurant
-export const restaurant = async (data) => {
-  return axios.post(formUrl + "/restaurants", {
-    ...data,
-  },
-  {
-    headers: {
-    "Authorization": `${localStorage.getItem('idToken')}`
-  }});
+export const submitRestaurant = async (data) => {
+  return axios.post(
+    formUrl + "/restaurants",
+    {
+      ...data,
+    },
+    {
+      headers: {
+        authorization: localStorage.getItem("idToken"),
+      },
+    }
+  );
 };

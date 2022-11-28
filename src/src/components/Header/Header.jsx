@@ -7,10 +7,11 @@ import useStyles from './styles';
 import { ReserveForm } from '././form.jsx'
 import { ProfilePage } from './Merchant/profile.jsx'
 import axios from 'axios'
+import AddRestaurant from '../AddRestaurant/AddRestaurant';
 
 // Restaurant Submit
 const handleSubmit = (e) => {
-    axios.post("https://rrz0qonpwi.execute-api.us-east-1.amazonaws.com/dev/restaurants", 
+    axios.post("https://rrz0qonpwi.execute-api.us-east-1.amazonaws.com/dev/restaurants",
     {
         fullname: "Alex's Steakhouse", // string
         email: "email@email.com", // string
@@ -24,7 +25,8 @@ const handleSubmit = (e) => {
 const Header = ({ setCoordinates }) => {
     const classes = useStyles();
     const [autocomplete, setAutocomplete] = useState(null);
-    
+    const [showAddRestaurantModal, setShowAddRestaurantModal] = useState(false);
+
     const onLoad = (autoC) => setAutocomplete(autoC);
 
     const onPlaceChanged = () => {
@@ -33,7 +35,7 @@ const Header = ({ setCoordinates }) => {
 
         setCoordinates({ lat, lng });
     }
-    
+
     return (
         <AppBar position="static">
             <Toolbar className={classes.toolbar}>
@@ -41,9 +43,6 @@ const Header = ({ setCoordinates }) => {
                     TableYes
                 </Typography>
                 <Box display="flex">
-                    <Typography variant ="h6" className={classes.title}>
-                        Find restaurants
-                    </Typography>
                     <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
                         <div className={classes.search}>
                             <div className={classes.searchIcon}>
@@ -53,9 +52,23 @@ const Header = ({ setCoordinates }) => {
                         </div>
                     </Autocomplete>
                 </Box>
+                <Button onClick={() => {
+                    setShowAddRestaurantModal(true);
+                }}>Add Restaurant</Button>
+                {showAddRestaurantModal && (
+                <AddRestaurant
+                    handleOnClosed={() => {
+                        setShowAddRestaurantModal(false);
+                        }
+                    }
+                    handleOnSubmitted={() => {
+                        setShowAddRestaurantModal(false);
+                        }
+                    }
+                />
+                )}
+                {/* <ReserveForm/> */}
                 <ProfilePage />
-                {/* <Button onClick={handleSubmit}>R-Submit</Button>
-                <ReserveForm/> */}
             </Toolbar>
         </AppBar>
     );
