@@ -11,13 +11,10 @@ export const ProfilePage = () => {
     const [open, setOpen] = useState(false)
     const classes = useStyles();
 
-    const state = {
-        restaurants: []
-    }
 
-    const handleSubmit = async () => {
+    const getReservations = async () => {
         //setOpen(false)
-        axios.get("https://tjcc5pqmel.execute-api.us-east-1.amazonaws.com/dev/restaurants", 
+        axios.get("https://tjcc5pqmel.execute-api.us-east-1.amazonaws.com/dev/restaurants/2", 
         {
             headers: {
                 //"access-control-allow-origin": "*",
@@ -43,7 +40,7 @@ export const ProfilePage = () => {
     
     return(
         <div>
-            <Box sx={{ minWidth: 120 }}>
+            {/* <Box sx={{ minWidth: 120 }}>
                 <FormControl fullWidth>
                 <InputLabel id="demo-simple-select-label">Merchant</InputLabel>
                 <Select
@@ -58,7 +55,7 @@ export const ProfilePage = () => {
                     <MenuItem value={30}>Thirty</MenuItem>
                 </Select>
                 </FormControl>
-            </Box>
+            </Box> */}
 
             <Button onClick={() => setOpen(true)}>Merchant</Button>
              <Dialog 
@@ -74,6 +71,7 @@ export const ProfilePage = () => {
                     <DialogTitle className = {classes.DialogTitle} id='dialog-title'>Restaurants</DialogTitle>
                         <DialogContent>
                             <RestaurantInfo/>
+                            <Button onClick={ getReservations }>TEST</Button>
                             {/* <Button>Bob's Burgers - Daytona Beach</Button>
                             <Button>Bob's Burgers - DeLand</Button> */}
                         </DialogContent>

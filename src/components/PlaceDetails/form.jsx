@@ -22,14 +22,15 @@ export const ReserveForm = ({place}) => {
 
     const [open, setOpen] = useState(false);
 
+    //eyJraWQiOiJwYVVSeVN0WUk3V1BJdWhCc1JjZUdnZ0NcLzdQY0dVUEdCOEFKYlVYa3NqST0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI3N2Q0ZjU3NC0xYWQ4LTRlZTItYjQ5Ni0wYmRhZDc5ODMwZGQiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb21cL3VzLWVhc3QtMV95SnRjckdBQ0YiLCJjbGllbnRfaWQiOiI1ajRxbjNoY3RiNDY2ZGM2dm81bHY4OWs0ZiIsIm9yaWdpbl9qdGkiOiI0MGNlMmJkYS0xNDE4LTQ3YjAtYmViYi0xNWVlZjIwNDNlOGMiLCJldmVudF9pZCI6IjlkMDBkY2QyLWYyNDctNDZhMC04NGZjLWFiNzgyM2NiODdhOCIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiYXdzLmNvZ25pdG8uc2lnbmluLnVzZXIuYWRtaW4iLCJhdXRoX3RpbWUiOjE2Njk2NjY3MTksImV4cCI6MTY2OTY4NDcxOSwiaWF0IjoxNjY5NjY2NzE5LCJqdGkiOiJkZTAzMTY1MS0wZGM2LTQzZTQtOTkyZC0yZWMwMDI1NTA4YjAiLCJ1c2VybmFtZSI6ImJvYkBzaW11bGF0b3IuYW1hem9uc2VzLmNvbSJ9.HsyD5hGTOMSiDhy_JYdIxmwPbUBqioE4xsTH650ciglIRX149Uc7OFJlIZyJnl31iMvfcUzNM2SzR49Ngrcog6LNFylQeTOZZvBa2dvm85OY4zRmXGtUwSiIQRjzLmnElLXttWem4lJNOSJ19WFMGVH-VJJJgr5f1wLiEYOJUlkvJKUQ1Khb0H6KigYOkjEt9JKze_MYQui8SewRi_R8X1ICk3-SCGWiCjWofEzDcsAZWf3TbY2yy-tO5AiBjRMLRHfLAzg7J89LMlCqFdrfeuDz91l8dsnOZhdBUBDfxPGAsKEUF4KSbpBix9C_12m1nNZOpuame0SWUZZelbgjJA'
+    //"Authorization": 'eyJraWQiOiJuT3NYQ1pSRTFLS3pDRjNSUEZXMXkwYVFcL0J5MUtaSVNqWkxWdUYxSlpwWT0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI3N2Q0ZjU3NC0xYWQ4LTRlZTItYjQ5Ni0wYmRhZDc5ODMwZGQiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tXC91cy1lYXN0LTFfeUp0Y3JHQUNGIiwiY29nbml0bzp1c2VybmFtZSI6ImJvYkBzaW11bGF0b3IuYW1hem9uc2VzLmNvbSIsIm9yaWdpbl9qdGkiOiI0MGNlMmJkYS0xNDE4LTQ3YjAtYmViYi0xNWVlZjIwNDNlOGMiLCJhdWQiOiI1ajRxbjNoY3RiNDY2ZGM2dm81bHY4OWs0ZiIsImV2ZW50X2lkIjoiOWQwMGRjZDItZjI0Ny00NmEwLTg0ZmMtYWI3ODIzY2I4N2E4IiwidG9rZW5fdXNlIjoiaWQiLCJhdXRoX3RpbWUiOjE2Njk2NjY3MTksImV4cCI6MTY2OTY4NDcxOSwiaWF0IjoxNjY5NjY2NzE5LCJqdGkiOiIyZWRhMzllZS1kZjkxLTQ5MjgtODQ4Ny1iY2YxZjExYjZkNTUiLCJlbWFpbCI6ImJvYkBzaW11bGF0b3IuYW1hem9uc2VzLmNvbSJ9.Mz_FouENlhe0SLQIssckaxHFZb9PzGVxghbukOLavaxg2aQEFB6Wk7reBBtcOd15u0OgTiHYs1XmJ_CBmMeb0wnaT8CkMHVJmrF-XXxUkgs97Km4vUHE8z2I5UDOdq3kkZnQjjr12hzd8DyHLsug6k2sxop0yLe8ZUm_3YFuCMSJWENnZlNRBBuWCHxWlyWrpTHuddu9jWeRRXMYqphN7bJuKKMEmx4lA1yPAfmhaVWpBGwEy2PkRFQWKtlWJTzRwOXFtDFPQnstl4gNdyAX_bpae3yntUil-f0HY-4OomYnMX95hxSnC3eViKVZWrpsMq1p2MHexPLcLKj3OhLh3g'
     
-
     // store and pass token
     const handleSubmit = async () => {
         //setOpen(false)
         axios.post("https://tjcc5pqmel.execute-api.us-east-1.amazonaws.com/dev/reservations",
         JSON.stringify({
-            token: 'eyJraWQiOiJwYVVSeVN0WUk3V1BJdWhCc1JjZUdnZ0NcLzdQY0dVUEdCOEFKYlVYa3NqST0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI3N2Q0ZjU3NC0xYWQ4LTRlZTItYjQ5Ni0wYmRhZDc5ODMwZGQiLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAudXMtZWFzdC0xLmFtYXpvbmF3cy5jb21cL3VzLWVhc3QtMV95SnRjckdBQ0YiLCJjbGllbnRfaWQiOiI1ajRxbjNoY3RiNDY2ZGM2dm81bHY4OWs0ZiIsIm9yaWdpbl9qdGkiOiI0MGNlMmJkYS0xNDE4LTQ3YjAtYmViYi0xNWVlZjIwNDNlOGMiLCJldmVudF9pZCI6IjlkMDBkY2QyLWYyNDctNDZhMC04NGZjLWFiNzgyM2NiODdhOCIsInRva2VuX3VzZSI6ImFjY2VzcyIsInNjb3BlIjoiYXdzLmNvZ25pdG8uc2lnbmluLnVzZXIuYWRtaW4iLCJhdXRoX3RpbWUiOjE2Njk2NjY3MTksImV4cCI6MTY2OTY4NDcxOSwiaWF0IjoxNjY5NjY2NzE5LCJqdGkiOiJkZTAzMTY1MS0wZGM2LTQzZTQtOTkyZC0yZWMwMDI1NTA4YjAiLCJ1c2VybmFtZSI6ImJvYkBzaW11bGF0b3IuYW1hem9uc2VzLmNvbSJ9.HsyD5hGTOMSiDhy_JYdIxmwPbUBqioE4xsTH650ciglIRX149Uc7OFJlIZyJnl31iMvfcUzNM2SzR49Ngrcog6LNFylQeTOZZvBa2dvm85OY4zRmXGtUwSiIQRjzLmnElLXttWem4lJNOSJ19WFMGVH-VJJJgr5f1wLiEYOJUlkvJKUQ1Khb0H6KigYOkjEt9JKze_MYQui8SewRi_R8X1ICk3-SCGWiCjWofEzDcsAZWf3TbY2yy-tO5AiBjRMLRHfLAzg7J89LMlCqFdrfeuDz91l8dsnOZhdBUBDfxPGAsKEUF4KSbpBix9C_12m1nNZOpuame0SWUZZelbgjJA', // token
+            token: localStorage.getItem('accessToken'), // token
             restaurantID: place.location_id, // string
             reserveTime: time, // string
             partySize: size, // int
@@ -39,7 +40,7 @@ export const ReserveForm = ({place}) => {
                 //"access-control-allow-origin": "*",
                 //"Access-Control-Allow-Headers": "Accept",
                 //"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE,OPTIONS",
-                "Authorization": 'eyJraWQiOiJuT3NYQ1pSRTFLS3pDRjNSUEZXMXkwYVFcL0J5MUtaSVNqWkxWdUYxSlpwWT0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI3N2Q0ZjU3NC0xYWQ4LTRlZTItYjQ5Ni0wYmRhZDc5ODMwZGQiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLnVzLWVhc3QtMS5hbWF6b25hd3MuY29tXC91cy1lYXN0LTFfeUp0Y3JHQUNGIiwiY29nbml0bzp1c2VybmFtZSI6ImJvYkBzaW11bGF0b3IuYW1hem9uc2VzLmNvbSIsIm9yaWdpbl9qdGkiOiI0MGNlMmJkYS0xNDE4LTQ3YjAtYmViYi0xNWVlZjIwNDNlOGMiLCJhdWQiOiI1ajRxbjNoY3RiNDY2ZGM2dm81bHY4OWs0ZiIsImV2ZW50X2lkIjoiOWQwMGRjZDItZjI0Ny00NmEwLTg0ZmMtYWI3ODIzY2I4N2E4IiwidG9rZW5fdXNlIjoiaWQiLCJhdXRoX3RpbWUiOjE2Njk2NjY3MTksImV4cCI6MTY2OTY4NDcxOSwiaWF0IjoxNjY5NjY2NzE5LCJqdGkiOiIyZWRhMzllZS1kZjkxLTQ5MjgtODQ4Ny1iY2YxZjExYjZkNTUiLCJlbWFpbCI6ImJvYkBzaW11bGF0b3IuYW1hem9uc2VzLmNvbSJ9.Mz_FouENlhe0SLQIssckaxHFZb9PzGVxghbukOLavaxg2aQEFB6Wk7reBBtcOd15u0OgTiHYs1XmJ_CBmMeb0wnaT8CkMHVJmrF-XXxUkgs97Km4vUHE8z2I5UDOdq3kkZnQjjr12hzd8DyHLsug6k2sxop0yLe8ZUm_3YFuCMSJWENnZlNRBBuWCHxWlyWrpTHuddu9jWeRRXMYqphN7bJuKKMEmx4lA1yPAfmhaVWpBGwEy2PkRFQWKtlWJTzRwOXFtDFPQnstl4gNdyAX_bpae3yntUil-f0HY-4OomYnMX95hxSnC3eViKVZWrpsMq1p2MHexPLcLKj3OhLh3g'
+                "Authorization": localStorage.getItem('idToken')
                 //idToken ^^
             }
         })
@@ -183,7 +184,7 @@ export const ReserveForm = ({place}) => {
                         <DialogContent>
                             <DialogContentText id='dialog-description'>Please arrive at least 10 minutes before your reserved time.</DialogContentText>
                         </DialogContent>
-                    { <p>{localStorage.getItem("accessToken")} and {place.name} and {place.latitude} and {place.longitude} and key: {place.location_id}</p> }
+                    { <p>{localStorage.getItem("idToken")} and {place.name} and {place.latitude} and {place.longitude} and key: {place.location_id}</p> }
                     <DialogActions>
                         <Button onClick={() => setOpen(false)}>Cancel</Button>
                         <Button variant='outlined' onClick={handleSubmit}>Submit</Button>
