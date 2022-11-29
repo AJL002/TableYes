@@ -254,36 +254,6 @@ functions:
             claims:
               - email
               - sub
-  userSubmission:
-    handler: api/user.submitUser
-    memorySize: 128
-    description: Submit user information 
-    events:
-      - http:
-          path: user
-          method: post
-          cors: true
-
-  reservationSubmission:
-    handler: api/user.submitReservation
-    memorySize: 128
-    description: Submit reservation info 
-    events:
-      - http:
-          path: reservations
-          method: post
-          cors: true
-          authorizer:
-            name: PrivateAuthorizer
-            type: COGNITO_USER_POOLS
-            arn:
-              Fn::GetAtt:
-                - UserPool
-                - Arn
-            claims:
-              - email
-              - sub
-
   listRestaurants:
     handler: api/restaurant.listRestaurants
     memorySize: 128
@@ -303,16 +273,14 @@ functions:
             #claims:
               #- email
               #- sub
-  
   restaurantDetails:
-    handler: api/restaurant.get
+    handler: api/restaurant.getRest
     description: List specific restaurant detail
     events:
       - http:
           path: restaurants/{id}
           method: get
           cors: true
-
   deleteRestaurant:
     handler: api/restaurant.delete
     description: delete specific restaurant 
@@ -322,16 +290,63 @@ functions:
           method: delete 
           cors: true
 
+  reservationSubmission:
+    handler: api/reservations.submitReservation
+    memorySize: 128
+    description: Submit reservation info 
+    events:
+      - http:
+          path: reservations
+          method: post
+          cors: true
+          authorizer:
+            name: PrivateAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - UserPool
+                - Arn
+            claims:
+              - email
+              - sub
+  updateReservation:
+     handler: api/reservations.updateReservation
+     description: edit reservation information across all tables
+     events:
+       - http:
+           path: reservations
+           method: PUT
+           cors: true
+           authorizer:
+            name: PrivateAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - UserPool
+                - Arn
+            claims:
+              - email
+              - sub
+
+  signupUser:
+     handler: api/signup.handler
+     description: signup user and submit to database 
+     events:
+       - http:
+           path: api/signup
+           method: post
+           cors: true
   loginUser:
      handler: api/login.handler
+     description: login user 
      events:
        - http:
            path: api/login
            method: post
-           cors: true
-
+           cors: true         
   getUser:
      handler: api/user.getUserPar
+     description: get user 
      events:
        - http:
            path: api/user/{id}
@@ -347,33 +362,7 @@ functions:
             claims:
               - email
               - sub
-
-  updateReservation:
-     handler: api/user.updateReservation
-     events:
-       - http:
-           path: api/reservation
-           method: PUT
-           cors: true
-           authorizer:
-            name: PrivateAuthorizer
-            type: COGNITO_USER_POOLS
-            arn:
-              Fn::GetAtt:
-                - UserPool
-                - Arn
-            claims:
-              - email
-              - sub
-
-
-  signupUser:
-     handler: api/signup.handler
-     events:
-       - http:
-           path: api/signup
-           method: post
-           cors: true
+           
   privateAPI:
     handler: api/private.handler
     events:
