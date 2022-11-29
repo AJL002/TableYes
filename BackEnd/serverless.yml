@@ -2,14 +2,14 @@
 #https://github.com/mavi888/sls-cognito-backend/blob/master/serverless.yml
 service: TableYes-Dev
 
-frameworkVersion: '>=1.1.0 <3.23.0'
+frameworkVersion: ">=1.1.0 <3.23.0"
 
 provider:
   name: aws
   runtime: nodejs12.x
   stage: dev
   region: us-east-1
-  
+
   environment:
     DOMAIN_SUFFIX: burgos-program
     RESTAURANTS_TABLE: "restaurants-table-${opt:stage, self:provider.stage}"
@@ -27,23 +27,21 @@ provider:
         - dynamodb:PutItem
         - dynamodb:DeleteItem
         - dynamodb:UpdateItem
-        - cognito-idp:* 
-        
+        - cognito-idp:*
+
       Resource: "*"
 
 resources:
   Resources:
     RestaurantsDynamoDbTable:
-      Type: 'AWS::DynamoDB::Table'
+      Type: "AWS::DynamoDB::Table"
       DeletionPolicy: Retain
       Properties:
         AttributeDefinitions:
-          -
-            AttributeName: "id"
+          - AttributeName: "id"
             AttributeType: "S"
         KeySchema:
-          -
-            AttributeName: "id"
+          - AttributeName: "id"
             KeyType: "HASH"
         ProvisionedThroughput:
           ReadCapacityUnits: 1
@@ -52,16 +50,14 @@ resources:
           StreamViewType: "NEW_AND_OLD_IMAGES"
         TableName: ${self:provider.environment.RESTAURANTS_TABLE}
     UsersDynamoDbTable:
-      Type: 'AWS::DynamoDB::Table'
+      Type: "AWS::DynamoDB::Table"
       DeletionPolicy: Retain
       Properties:
         AttributeDefinitions:
-          -
-            AttributeName: "id"
+          - AttributeName: "id"
             AttributeType: "S"
         KeySchema:
-          -
-            AttributeName: "id"
+          - AttributeName: "id"
             KeyType: "HASH"
         ProvisionedThroughput:
           ReadCapacityUnits: 1
@@ -70,16 +66,14 @@ resources:
           StreamViewType: "NEW_AND_OLD_IMAGES"
         TableName: ${self:provider.environment.USER_TABLE}
     ReservationDynamoDbTable:
-      Type: 'AWS::DynamoDB::Table'
+      Type: "AWS::DynamoDB::Table"
       DeletionPolicy: Retain
       Properties:
         AttributeDefinitions:
-          -
-            AttributeName: "id"
+          - AttributeName: "id"
             AttributeType: "S"
         KeySchema:
-          -
-            AttributeName: "id"
+          - AttributeName: "id"
             KeyType: "HASH"
         ProvisionedThroughput:
           ReadCapacityUnits: 1
@@ -89,7 +83,7 @@ resources:
         TableName: ${self:provider.environment.RESERVATION_TABLE}
 
     GatewayResponseDefault4XX:
-      Type: 'AWS::ApiGateway::GatewayResponse'
+      Type: "AWS::ApiGateway::GatewayResponse"
       Properties:
         ResponseParameters:
           gatewayresponse.header.Access-Control-Allow-Origin: "method.request.header.Origin"
@@ -97,9 +91,9 @@ resources:
           gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
         ResponseType: DEFAULT_4XX
         RestApiId:
-          Ref: 'ApiGatewayRestApi'
+          Ref: "ApiGatewayRestApi"
     GatewayResponseDefault5XX:
-      Type: 'AWS::ApiGateway::GatewayResponse'
+      Type: "AWS::ApiGateway::GatewayResponse"
       Properties:
         ResponseParameters:
           gatewayresponse.header.Access-Control-Allow-Origin: "method.request.header.Origin"
@@ -107,8 +101,8 @@ resources:
           gatewayresponse.header.Access-Control-Allow-Headers: "'*'"
         ResponseType: DEFAULT_5XX
         RestApiId:
-          Ref: 'ApiGatewayRestApi'
-    
+          Ref: "ApiGatewayRestApi"
+
     # Cognito - User pool
     CognitoUserPool:
       Type: AWS::Cognito::UserPool
@@ -132,7 +126,7 @@ resources:
               Ref: CognitoUserPoolClient
             ProviderName:
               Fn::GetAtt: [CognitoUserPool, ProviderName]
-    
+
     UserPool:
       Type: AWS::Cognito::UserPool
       Properties:
@@ -155,8 +149,8 @@ resources:
         AccessTokenValidity: 5
         IdTokenValidity: 5
         ExplicitAuthFlows:
-          - "ADMIN_NO_SRP_AUTH" 
-    
+          - "ADMIN_NO_SRP_AUTH"
+
     # Cognito roles
     CognitoIdentityPoolRoles:
       Type: AWS::Cognito::IdentityPoolRoleAttachment
@@ -233,12 +227,11 @@ resources:
                     - "cognito-identity:*"
                   Resource: "*"
 
-
 functions:
   restaurantSubmission:
     handler: api/restaurant.submitRestaurant
     memorySize: 128
-    description: Submit restaurant information 
+    description: Submit restaurant information
     events:
       - http:
           path: restaurants
@@ -259,20 +252,20 @@ functions:
     memorySize: 128
     description: List all restaurants
     events:
-      - http: 
+      - http:
           path: restaurants
           method: get
           cors: true
           #authorizer:
-            #name: PrivateAuthorizer
-            #type: COGNITO_USER_POOLS
-            #arn:
-              #Fn::GetAtt:
-                #- UserPool
-                #- Arn
-            #claims:
-              #- email
-              #- sub
+          #name: PrivateAuthorizer
+          #type: COGNITO_USER_POOLS
+          #arn:
+          #Fn::GetAtt:
+          #- UserPool
+          #- Arn
+          #claims:
+          #- email
+          #- sub
   restaurantDetails:
     handler: api/restaurant.getRest
     description: List specific restaurant detail
@@ -283,17 +276,17 @@ functions:
           cors: true
   deleteRestaurant:
     handler: api/restaurant.delete
-    description: delete specific restaurant 
+    description: delete specific restaurant
     events:
       - http:
           path: restaurants/{id}
-          method: delete 
+          method: delete
           cors: true
 
   reservationSubmission:
     handler: api/reservations.submitReservation
     memorySize: 128
-    description: Submit reservation info 
+    description: Submit reservation info
     events:
       - http:
           path: reservations
@@ -310,14 +303,14 @@ functions:
               - email
               - sub
   updateReservation:
-     handler: api/reservations.updateReservation
-     description: edit reservation information across all tables
-     events:
-       - http:
-           path: reservations
-           method: PUT
-           cors: true
-           authorizer:
+    handler: api/reservations.updateReservation
+    description: edit reservation information across all tables
+    events:
+      - http:
+          path: reservations
+          method: PUT
+          cors: true
+          authorizer:
             name: PrivateAuthorizer
             type: COGNITO_USER_POOLS
             arn:
@@ -329,30 +322,30 @@ functions:
               - sub
 
   signupUser:
-     handler: api/signup.handler
-     description: signup user and submit to database 
-     events:
-       - http:
-           path: api/signup
-           method: post
-           cors: true
+    handler: api/signup.handler
+    description: signup user and submit to database
+    events:
+      - http:
+          path: api/signup
+          method: post
+          cors: true
   loginUser:
-     handler: api/login.handler
-     description: login user 
-     events:
-       - http:
-           path: api/login
-           method: post
-           cors: true         
+    handler: api/login.handler
+    description: login user
+    events:
+      - http:
+          path: api/login
+          method: post
+          cors: true
   getUser:
-     handler: api/user.getUserPar
-     description: get user 
-     events:
-       - http:
-           path: api/user/{id}
-           method: get
-           cors: true
-           authorizer:
+    handler: api/user.getUserPar
+    description: get user
+    events:
+      - http:
+          path: api/user/{id}
+          method: get
+          cors: true
+          authorizer:
             name: PrivateAuthorizer
             type: COGNITO_USER_POOLS
             arn:
@@ -362,7 +355,7 @@ functions:
             claims:
               - email
               - sub
-           
+
   privateAPI:
     handler: api/private.handler
     events:
@@ -379,5 +372,3 @@ functions:
                 - Arn
             claims:
               - email
-  
-
