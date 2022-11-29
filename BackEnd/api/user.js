@@ -241,11 +241,12 @@ var putUser = module.exports.submitUserDB = user => {
 
      
       try{
-        body = {update: await updateItem(userID, reservationID, reserveTime),
+        let updateReserv = await updateItemReserv(reservationID, reserveTime);
+        let updateRest = await updateItemRestaurant(reservationID, reserveTime);
+        let updateUser = await updateItem(userID, reservationID, reserveTime)
+        body = {updateReserv, updateRest, updateUser,
           message: `succesfully updated Item `,
-          }
-        await updateItemReserv(reservationID, reserveTime);
-        await updateItemRestaurant(reservationID, reserveTime);
+          };
 
       }
       catch (err) {
@@ -321,8 +322,11 @@ var putUser = module.exports.submitUserDB = user => {
   async function updateItemRestaurant(reservationID, reserveTime) {
     let target = 0;
     let restaurantID = await getReservation(reservationID).restaurantID;
+    console.log("restuarantID", restaurantID);
+    
     let restaurant = getRestaurant(restaurantID);
     console.log("restaurant ",restaurant);
+    
     let reservations = restaurant.reservations;
     console.log("reservations:", reservations);
     
