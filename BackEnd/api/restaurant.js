@@ -19,6 +19,7 @@ const dynamoDb = new AWS.DynamoDB.DocumentClient();
 module.exports.submitRestaurant = async (event, context, callback) => {
   const requestBody = JSON.parse(event.body);
   const fullname = requestBody.fullname;
+  const locationID = requestBody.locationID;
   const email = requestBody.email;
   const lat = requestBody.lat; 
   const long = requestBody.long;
@@ -27,7 +28,7 @@ module.exports.submitRestaurant = async (event, context, callback) => {
   const ownerID =  getUserID(token); 
 
 //check if fullname, email, lat, long are accepted values
-  if (typeof fullname !== 'string' || typeof email !== 'string' || typeof lat !== 'number' || typeof long !== 'number' ) {
+  if (typeof fullname !== 'string' || typeof email !== 'string' || typeof lat !== 'number' || typeof long !== 'number' || typeof locationID !== 'string' ) {
     console.error('Validation Failed');
     callback(new Error('Couldn\'t submit restaurant because of validation errors.'));
     return;
@@ -40,7 +41,7 @@ module.exports.submitRestaurant = async (event, context, callback) => {
    console.log("user ",user);
 
   //create new restaurant obj using func restaurantInfo() template 
-   const restaurant = restaurantInfo(fullname, email, lat, long, ownerID);
+   const restaurant = restaurantInfo(fullname, locationID, email, lat, long, ownerID);
 
    //restaurants will be an attribute of type Array for each user that is restaurant owner 
    var restaurants = new Array();
@@ -103,11 +104,12 @@ const submitRestaurant = module.exports.submitRestaurantDB= async restaurant => 
 };
 
 //func to create restaurant obj, with define parameters for database 
-const restaurantInfo = (fullname, email, lat, long, ownerID, id) => {
+const restaurantInfo = (fullname, locationID, email, lat, long, ownerID, id) => {
   const timestamp = new Date().getTime();
   return {
     id: uuid.v1(),
     ownerID: ownerID,
+    locationID: locationID,
     fullname: fullname,
     email: email,
     lat: lat,
@@ -226,4 +228,3 @@ module.exports.getRestaurant = async id => {
       headers
     };
     };
- 

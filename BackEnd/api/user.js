@@ -208,10 +208,32 @@ var putUser = module.exports.submitUserDB = user => {
         updatedAt: timestamp,
       };
     };
+
+  var getReservation = module.exports.getReservationDB = async id => {
+    const params = {
+      TableName: process.env.RESERVATION_TABLE,
+      Key: {
+      id: id
+      }
+    };
+    console.log('calling dynamoDb');
+    const reservation = await dynamoDb.get(params).promise().then(function(reservation) {
+      console.log("got something ", reservation);
+      return reservation;
+    })
+    .catch(function(err) {
+      console.log(err);
+    });
+    return reservation.Item;
+  }
+
+
   
 
     module.exports.updateReservation = async (event, context) => {
       const requestBody = JSON.parse(event.body);
+      const token = requestBody.token;
+      const userID = getUserID(token);
       const reservationID = requestBody.reservationID;
       const reserveTime = requestBody.reserveTime;
       let body;
@@ -219,8 +241,12 @@ var putUser = module.exports.submitUserDB = user => {
 
      
       try{
-        await updateItem(reservationID, reserveTime);
-      body = `succesfully updated`;
+        body = {update: await updateItem(userID, reservationID, reserveTime),
+          message: `succesfully updated Item `,
+          }
+        await updateItemReserv(reservationID, reserveTime);
+        await updateItemRestaurant(reservationID, reserveTime);
+
       }
       catch (err) {
         statusCode = 400;
@@ -235,12 +261,43 @@ var putUser = module.exports.submitUserDB = user => {
       };
       };
    
+   
 
 
 
 
+  async function updateItem(userID,reservationID, reserveTime) {
+    let target = 0;
+    let user = await getUser(userID);
+    console.log("user ",user);
+    let reservations = user.reservations;
+    console.log("reservations:", reservations);
+    
+    for(let i = 0; i < reservations.length; i++){
+          if (reservations[i].id == reservationID){
+            target = i;
+            console.log(reservations[i].id);
+          }
+          console.log("else ",reservations[i].id);
+        }
+    console.log("target: ", target);
+    
+    const params = {
+        TableName: process.env.USER_TABLE,
+        Key: {
+            id: userID,
+        },
+        UpdateExpression: `set reservations[${target.toString()}].reserveTime = :reserveTime`,
+        ExpressionAttributeValues: {
+            ":reserveTime": reserveTime,
+        },
+        ReturnValues: "UPDATED_NEW",
 
-    function updateItem(reservationID, reserveTime) {
+    };
+    return dynamoDb.update(params).promise();
+}
+
+ function updateItemReserv(reservationID, reserveTime) {
       const params = {
           TableName: process.env.RESERVATION_TABLE,
   // this is your DynamoDB Table 
@@ -260,3 +317,35 @@ var putUser = module.exports.submitUserDB = user => {
       return dynamoDb.update(params).promise();
   // pass in the params above and fire the actual dynamoDB update method
   }
+
+  async function updateItemRestaurant(reservationID, reserveTime) {
+    let target = 0;
+    let restaurantID = await getReservation(reservationID).restaurantID;
+    let restaurant = getRestaurant(restaurantID);
+    console.log("restaurant ",restaurant);
+    let reservations = restaurant.reservations;
+    console.log("reservations:", reservations);
+    
+    for(let i = 0; i < reservations.length; i++){
+          if (reservations[i].id == reservationID){
+            target = i;
+            console.log(reservations[i].id);
+          }
+          console.log("else ",reservations[i].id);
+        }
+    console.log("target: ", target);
+    
+    const params = {
+        TableName: process.env.RESTAURANTS_TABLE,
+        Key: {
+            id: restaurantID,
+        },
+        UpdateExpression: `set reservations[${target.toString()}].reserveTime = :reserveTime`,
+        ExpressionAttributeValues: {
+            ":reserveTime": reserveTime,
+        },
+        ReturnValues: "UPDATED_NEW",
+
+    };
+    return dynamoDb.update(params).promise();
+}
