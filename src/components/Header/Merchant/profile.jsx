@@ -5,31 +5,15 @@ import axios from 'axios';
 import { useState } from 'react'
 import useStyles from '././styles-form.js';
 import { RestaurantInfo } from '././restaurantInfo.jsx';
+import { Details } from '@material-ui/icons';
 
 export const ProfilePage = () => {
 
     const [open, setOpen] = useState(false)
+
+    
     const classes = useStyles();
 
-
-    const getReservations = async () => {
-        //setOpen(false)
-        axios.get("https://tjcc5pqmel.execute-api.us-east-1.amazonaws.com/dev/restaurants/2", 
-        {
-            headers: {
-                //"access-control-allow-origin": "*",
-                //"Access-Control-Allow-Headers": "Accept",
-                //"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE,OPTIONS",
-                "Authorization": localStorage.getItem('idToken')
-                //idToken ^^
-            }
-        })
-        .then((response) => {
-            console.log(response);
-            const restaurants = response.data;
-        })
-        .catch((err) => console.log(err));
-    }
 
     const [age, setAge] = React.useState('');
 
@@ -71,7 +55,7 @@ export const ProfilePage = () => {
                     <DialogTitle className = {classes.DialogTitle} id='dialog-title'>Restaurants</DialogTitle>
                         <DialogContent>
                             <RestaurantInfo/>
-                            <Button onClick={ getReservations }>TEST</Button>
+                            {/* <Button>TEST</Button> */}
                             {/* <Button>Bob's Burgers - Daytona Beach</Button>
                             <Button>Bob's Burgers - DeLand</Button> */}
                         </DialogContent>

@@ -29,12 +29,13 @@ function AddRestaurant(props) {
   const onSubmitClicked = (event) => {
     const saveRestaurant = async () => {
       try {
+        console.log(typeof coordinates.lat)
         setLoading(true);
         await submitRestaurant({
           fullname: restaurantNameRef.current.value,
           email: restaurantEmailRef.current.value,
-          lat: coordinates.lat,
-          long: coordinates.lng,
+          lat: parseFloat(coordinates.lat),
+          long: parseFloat(coordinates.lng),
           token: localStorage.getItem("accessToken"),
           locationID: String(restaurantlocationID.current.value)
         },

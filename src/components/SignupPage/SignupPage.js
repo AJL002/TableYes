@@ -35,19 +35,24 @@ function SignupPage() {
 
     const signupUser = async () => {
       try {
-        await signup({
-          email: emailRef.current.value,
-          password: passwordRef.current.value,
-          role,
-          name: fullnameRef.current.value,
-          lat: coordinates.lat,
-          long: coordinates.lng,
-        });
+        var data2 = {
+          name: fullnameRef.current.value, 
+          email: emailRef.current.value, 
+          password: passwordRef.current.value}
+        //data2 = JSON.stringify(data2)
 
-        const { data } = await login({
-          email: emailRef.current.value,
-          password: passwordRef.current.value,
-        });
+        var data3 = { 
+          email: emailRef.current.value, 
+          password: passwordRef.current.value} //passwordRef.current.value
+       //data3 = JSON.stringify(data3)
+
+        await signup(data2);
+        
+        console.log(fullnameRef.current.value)
+        console.log(emailRef.current.value)
+        console.log(passwordRef.current.value)
+
+        const { data } = await login(data3);
         // Show successful message
         setLoading(false);
 

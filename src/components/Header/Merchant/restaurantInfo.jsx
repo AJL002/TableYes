@@ -1,5 +1,7 @@
+import * as React from 'react';
 import { Button, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, TextField, 
 Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@material-ui/core'
+import axios from 'axios';
 import { useState } from 'react'
 import makeStyles from '././styles-form.js';
 
@@ -7,17 +9,89 @@ export const RestaurantInfo = () => {
 
     const [open, setOpen] = useState(false)
     const classes = makeStyles();
+    let rows = []
 
     function createData(name, time, size) {
         return { name, time, size };
     }
 
-    const rows = [
-        createData('Louis Johnson', '15:30', '5'),
-        createData('Mary Welsh', '12:00', '2'),
-        createData('Larry Bold', '18:45', '3'),
-    ]
+    // function selectRows(){
+    //     console.log("SELECTROWS")
+    //     for (let i = 0; i < 15; i++) {
+    //         var name = '';
+    //         var time = '';
+    //         var size = '';
+    //         if (JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(details)["data"]))["reservations"]))))[i]))['userID'] != null) {
+    //             name = JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(details)["data"]))["reservations"]))))[i]))['userID'];
+                
+    //         }
+    //         if (JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(details)["data"]))["reservations"]))))[i]))['reserveTime'] != null) {
+    //             time = JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(details)["data"]))["reservations"]))))[i]))['reserveTime'];
+    //         }
+    //         if (JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(details)["data"]))["reservations"]))))[i]))['partySize'] != null) {
+    //             size = JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(details)["data"]))["reservations"]))))[i]))['partySize'];
+    //         }
+            
+    //         if(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(details)["data"]))["reservations"]))))[i]))['userID'] != null){
+    //             rows.push(createData(name, time, size))
+    //         }
+    //     };
 
+    //     // createData('Louis Johnson', '15:30', '5'),
+    //     // createData('Mary Welsh', '12:00', '2'),
+    //     // createData('Larry Bold', '18:45', '3'),
+    // }
+
+    let [details, setDetails] = useState([])
+    let [user, setUser] = useState([])
+    let [time, setTime] = useState([])
+    let [size, setSize] = useState([])
+    
+    const getReservations = async () => {
+        //setOpen(false)
+        axios.get("https://tjcc5pqmel.execute-api.us-east-1.amazonaws.com/dev/restaurants/2371005", 
+        {
+            headers: {
+                //"access-control-allow-origin": "*",
+                //"Access-Control-Allow-Headers": "Accept",
+                //"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE,OPTIONS",
+                "Authorization": localStorage.getItem('idToken')
+                //idToken ^^
+            }
+        })
+        .then((response) => {
+            console.log(JSON.stringify(response));
+            details = JSON.stringify(response);
+             var name = '';
+             var time = '';
+             var size = '';
+            for (let i = 0; i < 1; i++) {
+                name = JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(details)["data"]))["reservations"]))))[i]))['userID']
+                console.log("TEMP!!! " + name)
+            }
+            for (let i = 0; i < 1; i++) {
+                time = JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(details)["data"]))["reservations"]))))[i]))['reserveTime']
+                console.log("TEMP!!! " + time)
+            }
+            for (let i = 0; i < 1; i++) {
+                size = JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(details)["data"]))["reservations"]))))[i]))['partySize']
+                console.log("TEMP!!! " + size)
+            }
+            setUser(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(details)["data"]))["reservations"]))))[0]))['userID'])
+            setSize(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(JSON.stringify(JSON.parse(details)["data"]))["reservations"]))))[0]))['partySize'])
+            console.log('DETAILS - ' + details)
+            console.log('DETAILS - ' + time)
+            console.log('USER - ' + user)
+            console.log('SIZE - ' + size)
+            
+            //const restaurants = response.data;
+        })
+        .catch((err) => console.log(err));
+        //selectRows()
+        setOpen(true)
+    }
+
+    const [age, setAge] = React.useState('');
 
     // {places?.map((place, i) => (
     //     <Grid ref={elRefs[i]} item key = {i} xs={12}>
@@ -31,7 +105,7 @@ export const RestaurantInfo = () => {
 
     return(
         <div>
-            <Button onClick={() => setOpen(true)}>Restaurant</Button>
+            <Button onClick={() => getReservations()}>Restaurant</Button>
              <Dialog 
                 open = {open} 
                 onClose={() => setOpen(false)} 
@@ -64,10 +138,10 @@ export const RestaurantInfo = () => {
                                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                     >
                                     <TableCell component="th" scope="row">
-                                        {row.name}
+                                        {user}
                                     </TableCell>
-                                    <TableCell align="right">{row.time}</TableCell>
-                                    <TableCell align="right">{row.size}</TableCell>
+                                    <TableCell align="right">{time}</TableCell>
+                                    <TableCell align="right">{size}</TableCell>
                                     </TableRow>
                                 ))}
                                 </TableBody>

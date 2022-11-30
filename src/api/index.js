@@ -37,13 +37,21 @@ export const getPlacesData = async (sw, ne) => {
 
 // Signup a new user
 export const signup = async (data) => {
-  return axios.post(backendUrl + "/signup", {
+  console.log('Sign-up - ' + data)
+  return axios.post('https://tjcc5pqmel.execute-api.us-east-1.amazonaws.com/dev/api/signup', {
     ...data,
-  });
+  },
+  
+  
+  
+  );
 };
 
 // Login a user
 export const login = async (data) => {
+  console.log('Login - ' + data)
+  // console.log(localStorage.getItem('idToken'))
+  // console.log(localStorage.getItem('accessToken'))
   return axios.post(backendUrl + "/login", {
     ...data,
   });
