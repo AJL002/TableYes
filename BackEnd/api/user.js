@@ -76,7 +76,7 @@ module.exports.getUserPar = (event, context, callback) => {
 module.exports.getUserDetails = (event, context, callback) => {
   const requestBody = JSON.parse(event.body);
   const token = requestBody.token;
-  const attribute = requestBody.attribute;
+  const attribute = requestBody.attribute.toString();
   if(typeof attribute !== 'string'){
     console.error('Validation Failed');
     callback(new Error('Attribute is not of type string. Only accepted values are: reservations or restaurants'));
@@ -88,7 +88,7 @@ module.exports.getUserDetails = (event, context, callback) => {
     Key: {
       id: userID
     },
-    ProjectionExpression: `${toString(attribute)}` ,
+    ProjectionExpression: attribute ,
   };
 
   dynamoDb.get(params).promise()

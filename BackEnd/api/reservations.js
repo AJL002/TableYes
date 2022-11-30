@@ -186,6 +186,7 @@ module.exports.updateReservation = async (event, context) => {
 
 
 async function updateItem(userID, reservationID, reserveTime) {
+    console.log("updateItem");
     let target = 0;
     let user = await getUserDB(userID);
     console.log("user ", user);
@@ -217,6 +218,7 @@ async function updateItem(userID, reservationID, reserveTime) {
 }
 
 function updateItemReserv(reservationID, reserveTime) {
+    console.log("updateItemReserv");
     const params = {
         TableName: process.env.RESERVATION_TABLE,
         // this is your DynamoDB Table 
@@ -238,6 +240,7 @@ function updateItemReserv(reservationID, reserveTime) {
 }
 
 async function updateItemRestaurant(reservationID, reserveTime) {
+    console.log("updateItemRestaurant");
     let target = 0;
     let reservation = await getReservation(reservationID);
     let restaurantID = reservation.restaurantID;

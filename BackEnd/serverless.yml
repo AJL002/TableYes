@@ -274,6 +274,16 @@ functions:
           path: restaurants/{id}
           method: get
           cors: true
+          authorizer:
+            name: PrivateAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - UserPool
+                - Arn
+            claims:
+              - email
+              - sub
   getRestReservations:
     handler: api/restaurant.getRestReserv
     description: List specific restaurant's reservations
@@ -282,6 +292,16 @@ functions:
           path: restaurant/{id}
           method: get
           cors: true
+          authorizer:
+            name: PrivateAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - UserPool
+                - Arn
+            claims:
+              - email
+              - sub
   deleteRestaurant:
     handler: api/restaurant.delete
     description: delete specific restaurant
@@ -290,6 +310,16 @@ functions:
           path: restaurants/{id}
           method: delete
           cors: true
+          authorizer:
+            name: PrivateAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - UserPool
+                - Arn
+            claims:
+              - email
+              - sub
 
   reservationSubmission:
     handler: api/reservations.submitReservation
