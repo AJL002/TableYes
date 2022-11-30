@@ -358,6 +358,25 @@ functions:
             claims:
               - email
               - sub
+              
+  deleteReservation:
+    handler: api/reservations.deleteReservation
+    description: delete reservation information across all tables
+    events:
+      - http:
+          path: reservations
+          method: delete
+          cors: true
+          authorizer:
+            name: PrivateAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - UserPool
+                - Arn
+            claims:
+              - email
+              - sub
 
   signupUser:
     handler: api/signup.handler

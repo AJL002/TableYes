@@ -272,3 +272,117 @@ async function updateItemRestaurant(reservationID, reserveTime) {
     };
     return dynamoDb.update(params).promise();
 }
+
+module.exports.deleteReservation = async (event, context) => {
+    const requestBody = JSON.parse(event.body);
+    const token = requestBody.token;
+    const userID = getUserID(token);
+    const reservationID = requestBody.reservationID;
+    let body;
+    let statusCode = 200;
+
+
+    try {
+        let deleteResRest = await deleteReservRestaurant(reservationID);
+        let deleteResUser = await deleteReservUser(userID, reservationID);
+        let deleteRes = await deleteReserv(reservationID);
+        body = {
+            deleteResRest, deleteResUser, deleteRes,
+            message: `succesfully deleted Item `,
+        };
+
+    }
+    catch (err) {
+        statusCode = 400;
+        body = err.message;
+    } finally {
+        body = JSON.stringify(body);
+    }
+    return {
+        statusCode,
+        body,
+        headers
+    };
+};
+
+async function deleteReservUser(userID, reservationID) {
+    console.log("deleteReservation");
+    let target = 0;
+    let user = await getUserDB(userID);
+    console.log("user ", user);
+    let reservations = user.reservations;
+    console.log("reservations:", reservations);
+
+    for (let i = 0; i < reservations.length; i++) {
+        if (reservations[i].id == reservationID) {
+            target = i;
+            console.log(reservations[i].id);
+        }
+        console.log("else ", reservations[i].id);
+    }
+    console.log("target: ", target);
+
+    const params = {
+        TableName: process.env.USER_TABLE,
+        Key: {
+            id: userID,
+        },
+        UpdateExpression: `remove reservations[${target.toString()}]`,
+        ReturnValues: "ALL_OLD",
+
+    };
+    return dynamoDb.update(params).promise();
+};
+
+async function deleteReservRestaurant(reservationID) {
+    console.log("deleteReservRestaurant");
+    let target = 0;
+    let reservation = await getReservation(reservationID);
+    let restaurantID = reservation.restaurantID;
+    let restaurant = await getRestaurant(restaurantID);
+    let reservations = restaurant.reservations;
+
+
+
+    for (let i = 0; i < reservations.length; i++) {
+        if (reservations[i].id == reservationID) {
+            target = i;
+            console.log(reservations[i].id);
+        }
+        console.log("else ", reservations[i].id);
+    }
+    console.log("target: ", target);
+
+    const params = {
+        TableName: process.env.RESTAURANTS_TABLE,
+        Key: {
+            id: restaurantID,
+        },
+        UpdateExpression: `remove reservations[${target.toString()}]`,
+        ReturnValues: "ALL_OLD",
+
+    };
+    return dynamoDb.update(params).promise();
+};
+
+function deleteReserv(reservationID) {
+    console.log("deleteReserv");
+    const params = {
+        TableName: process.env.RESERVATION_TABLE,
+        Key: {
+            id: reservationID,
+        },
+        ReturnValues: "ALL_OLD",
+    };
+
+    return dynamoDb.delete(params, function(err, data){
+        if (err) {
+          console.log(err, err.stack);
+        }
+        else {
+          console.log(data);
+        }
+      }).promise();
+};
+
+
