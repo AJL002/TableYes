@@ -266,12 +266,20 @@ functions:
           #claims:
           #- email
           #- sub
-  restaurantDetails:
+  getRestaurant:
     handler: api/restaurant.getRest
     description: List specific restaurant detail
     events:
       - http:
           path: restaurants/{id}
+          method: get
+          cors: true
+  getRestReservations:
+    handler: api/restaurant.getRestReserv
+    description: List specific restaurant's reservations
+    events:
+      - http:
+          path: restaurant/{id}
           method: get
           cors: true
   deleteRestaurant:
@@ -342,7 +350,25 @@ functions:
     description: get user
     events:
       - http:
-          path: api/user/{id}
+          path: api/users/{id}
+          method: get
+          cors: true
+          authorizer:
+            name: PrivateAuthorizer
+            type: COGNITO_USER_POOLS
+            arn:
+              Fn::GetAtt:
+                - UserPool
+                - Arn
+            claims:
+              - email
+              - sub
+  getUserDetails:
+    handler: api/user.getUserDetails
+    description: get user reservations or restaurants detail
+    events:
+      - http:
+          path: api/user
           method: get
           cors: true
           authorizer:

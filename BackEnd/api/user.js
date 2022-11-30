@@ -3,7 +3,7 @@
 //https://www.serverless.com/blog/node-rest-api-with-serverless-lambda-and-dynamodb
 
 const AWS = require('aws-sdk');
-
+const { getUserID } = require('../functions/index');
 const headers = {
   'Content-Type': 'application/json',
   'Access-Control-Allow-Origin': '*',
@@ -54,6 +54,41 @@ module.exports.getUserPar = (event, context, callback) => {
     Key: {
       id: event.pathParameters.id
     }
+  };
+
+  dynamoDb.get(params).promise()
+    .then(result => {
+      const response = {
+        statusCode: 200,
+        body: JSON.stringify(result.Item),
+        headers: headers
+      };
+      callback(null, response);
+    })
+    .catch(error => {
+      console.error(error);
+      callback(new Error('Couldn\'t fetch user.'));
+      return;
+    });
+};
+
+//another get user restaurants func
+module.exports.getUserDetails = (event, context, callback) => {
+  const requestBody = JSON.parse(event.body);
+  const token = requestBody.token;
+  const attribute = requestBody.attribute;
+  if(typeof attribute !== 'string'){
+    console.error('Validation Failed');
+    callback(new Error('Attribute is not of type string. Only accepted values are: reservations or restaurants'));
+    return;
+  }
+  const userID = getUserID(token);
+  const params = {
+    TableName: process.env.USER_TABLE,
+    Key: {
+      id: userID
+    },
+    ProjectionExpression: `${toString(attribute)}` ,
   };
 
   dynamoDb.get(params).promise()

@@ -54,7 +54,15 @@ module.exports.submitReservation = async (event, context, callback) => {
 
     //grab restaurant
     var restaurant = await getRestaurant(restaurantID);
-
+    if(typeof restaurant == "undefined"){
+        console.log("invalid restaurant id");
+        callback(null, {
+            statusCode: 500,
+            body: JSON.stringify({
+                message: `invalid restaurant id `,
+            })});
+        return;
+    }
     if (typeof restaurant.reservations == "undefined") {
         console.log("reservations empty in restaurant");
         restaurant.reservations = new Array();

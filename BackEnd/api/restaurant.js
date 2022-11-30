@@ -107,9 +107,8 @@ const submitRestaurant = module.exports.submitRestaurantDB = async restaurant =>
 const restaurantInfo = (fullname, locationID, email, lat, long, ownerID, id) => {
   const timestamp = new Date().getTime();
   return {
-    id: uuid.v1(),
+    id: locationID,
     ownerID: ownerID,
-    locationID: locationID,
     fullname: fullname,
     email: email,
     lat: lat,
@@ -175,13 +174,38 @@ module.exports.getRestaurant = async id => {
   return rest.Item;
 }
 
+//get restuarant reservations func but getting id as path param eg: /{id}
+module.exports.getRestReserv = (event, context, callback) => {
+  const params = {
+    TableName: process.env.RESTAURANTS_TABLE,
+    Key: {
+      id: event.pathParameters.id
+    },
+    ProjectionExpression: "reservations",
+  };
+
+  dynamoDb.get(params).promise()
+    .then(result => {
+      const response = {
+        statusCode: 200,
+        body: JSON.stringify(result.Item),
+        headers: headers
+      };
+      callback(null, response);
+    })
+    .catch(error => {
+      console.error(error);
+      callback(new Error('Couldn\'t fetch restaurant reservations.'));
+      return;
+    });
+};
 //another get restuarant func but getting id as path param eg: /{id}
 module.exports.getRest = (event, context, callback) => {
   const params = {
     TableName: process.env.RESTAURANTS_TABLE,
     Key: {
       id: event.pathParameters.id
-    }
+    },
   };
 
   dynamoDb.get(params).promise()
@@ -199,6 +223,7 @@ module.exports.getRest = (event, context, callback) => {
       return;
     });
 };
+
 
 //restuarant delete method with path param eg: /{id}
 //does not delete restuarant obj from user table 
