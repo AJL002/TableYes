@@ -3,7 +3,7 @@
 var jwt = require('jsonwebtoken');
 var jwkToPem = require('jwk-to-pem');
 
-
+//
 const sendResponse = (statusCode, body) => {
     const response = {
         statusCode: statusCode,

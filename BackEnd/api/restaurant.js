@@ -10,7 +10,7 @@ const headers = {
   'Access-Control-Allow-Methods': 'OPTIONS,GET,POST,DELETE,PUT',
   'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'
 }
-
+ 
 
 AWS.config.setPromisesDependency(require('bluebird'));
 const dynamoDb = new AWS.DynamoDB.DocumentClient();

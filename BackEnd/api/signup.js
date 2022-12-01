@@ -15,7 +15,7 @@ exports.handler = async (event, context, callback) => {
   const {
     name,
     email,
-    password
+    password 
   } = JSON.parse(event.body)
   const {
     user_pool_id

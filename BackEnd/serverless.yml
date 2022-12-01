@@ -283,7 +283,7 @@ functions:
                 - Arn
             claims:
               - email
-              - sub
+              - sub 
   getRestReservations:
     handler: api/restaurant.getRestReserv
     description: List specific restaurant's reservations
